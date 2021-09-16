@@ -11,7 +11,7 @@ import (
 	"github.com/number571/tendermint/crypto/tmhash"
 	tmjson "github.com/number571/tendermint/libs/json"
 
-	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
+	gkeys "bitbucket.org/number571/go-cryptopro/gost_r_34_10_2012"
 )
 
 //-------------------------------------

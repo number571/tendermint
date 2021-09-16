@@ -11,8 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/number571/tendermint/crypto/ed25519"
-	"github.com/number571/tendermint/p2p"
+	"github.com/number571/tendermint/crypto/gost512"
+	"github.com/number571/tendermint/internal/p2p"
+	"github.com/number571/tendermint/types"
 )
 
 func main() {
@@ -32,13 +33,13 @@ func initCorpus(baseDir string) {
 	}
 
 	// create corpus
-	privKey := ed25519.GenPrivKey()
+	privKey := gost512.GenPrivKey()
 	addrs := []*p2p.NetAddress{
-		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(0, 0, 0, 0), Port: 0},
-		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(127, 0, 0, 0), Port: 80},
-		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(213, 87, 10, 200), Port: 8808},
-		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(111, 111, 111, 111), Port: 26656},
-		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.ParseIP("2001:db8::68"), Port: 26656},
+		{ID: types.NodeIDFromPubKey(privKey.PubKey()), IP: net.IPv4(0, 0, 0, 0), Port: 0},
+		{ID: types.NodeIDFromPubKey(privKey.PubKey()), IP: net.IPv4(127, 0, 0, 0), Port: 80},
+		{ID: types.NodeIDFromPubKey(privKey.PubKey()), IP: net.IPv4(213, 87, 10, 200), Port: 8808},
+		{ID: types.NodeIDFromPubKey(privKey.PubKey()), IP: net.IPv4(111, 111, 111, 111), Port: 26656},
+		{ID: types.NodeIDFromPubKey(privKey.PubKey()), IP: net.ParseIP("2001:db8::68"), Port: 26656},
 	}
 
 	for i, addr := range addrs {

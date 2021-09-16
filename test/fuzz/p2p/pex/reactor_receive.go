@@ -4,41 +4,48 @@ import (
 	"net"
 
 	"github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
+	"github.com/number571/tendermint/internal/p2p"
+	"github.com/number571/tendermint/internal/p2p/pex"
 	"github.com/number571/tendermint/libs/log"
 	"github.com/number571/tendermint/libs/service"
-	"github.com/number571/tendermint/p2p"
-	"github.com/number571/tendermint/p2p/pex"
+	"github.com/number571/tendermint/types"
 	"github.com/number571/tendermint/version"
 )
 
 var (
-	pexR *pex.Reactor
-	peer p2p.Peer
+	pexR   *pex.Reactor
+	peer   p2p.Peer
+	logger = log.MustNewDefaultLogger(log.LogFormatPlain, log.LogLevelInfo, false)
 )
 
 func init() {
 	addrB := pex.NewAddrBook("./testdata/addrbook1", false)
-	pexR := pex.NewReactor(addrB, &pex.ReactorConfig{SeedMode: false})
-	if pexR == nil {
-		panic("NewReactor returned nil")
-	}
-	pexR.SetLogger(log.NewNopLogger())
-	peer := newFuzzPeer()
+	pexR = pex.NewReactor(addrB, &pex.ReactorConfig{SeedMode: false})
+	pexR.SetLogger(logger)
+	peer = newFuzzPeer()
 	pexR.AddPeer(peer)
 
-}
-
-func Fuzz(data []byte) int {
-	// MakeSwitch uses log.TestingLogger which can't be executed in init()
 	cfg := config.DefaultP2PConfig()
 	cfg.PexReactor = true
 	sw := p2p.MakeSwitch(cfg, 0, "127.0.0.1", "123.123.123", func(i int, sw *p2p.Switch) *p2p.Switch {
 		return sw
-	})
+	}, logger)
 	pexR.SetSwitch(sw)
+}
+
+func Fuzz(data []byte) int {
+	if len(data) == 0 {
+		return -1
+	}
 
 	pexR.Receive(pex.PexChannel, peer, data)
+
+	if !peer.IsRunning() {
+		// do not increase priority for msgs which lead to peer being stopped
+		return 0
+	}
+
 	return 1
 }
 
@@ -55,31 +62,33 @@ func newFuzzPeer() *fuzzPeer {
 	return fp
 }
 
-var privKey = ed25519.GenPrivKey()
-var nodeID = p2p.PubKeyToID(privKey.PubKey())
-var defaultNodeInfo = p2p.DefaultNodeInfo{
-	ProtocolVersion: p2p.NewProtocolVersion(
-		version.P2PProtocol,
-		version.BlockProtocol,
-		0,
-	),
-	DefaultNodeID: nodeID,
-	ListenAddr:    "0.0.0.0:98992",
-	Moniker:       "foo1",
+var privKey = gost512.GenPrivKey()
+var nodeID = types.NodeIDFromPubKey(privKey.PubKey())
+var defaultNodeInfo = types.NodeInfo{
+	ProtocolVersion: types.ProtocolVersion{
+		P2P:   version.P2PProtocol,
+		Block: version.BlockProtocol,
+		App:   0,
+	},
+	NodeID:     nodeID,
+	ListenAddr: "127.0.0.1:0",
+	Moniker:    "foo1",
 }
 
 func (fp *fuzzPeer) FlushStop()       {}
-func (fp *fuzzPeer) ID() p2p.ID       { return nodeID }
-func (fp *fuzzPeer) RemoteIP() net.IP { return net.IPv4(0, 0, 0, 0) }
+func (fp *fuzzPeer) ID() types.NodeID { return nodeID }
+func (fp *fuzzPeer) RemoteIP() net.IP { return net.IPv4(198, 163, 190, 214) }
 func (fp *fuzzPeer) RemoteAddr() net.Addr {
-	return &net.TCPAddr{IP: fp.RemoteIP(), Port: 98991, Zone: ""}
+	return &net.TCPAddr{IP: fp.RemoteIP(), Port: 26656, Zone: ""}
 }
-func (fp *fuzzPeer) IsOutbound() bool                  { return false }
-func (fp *fuzzPeer) IsPersistent() bool                { return false }
-func (fp *fuzzPeer) CloseConn() error                  { return nil }
-func (fp *fuzzPeer) NodeInfo() p2p.NodeInfo            { return defaultNodeInfo }
-func (fp *fuzzPeer) Status() p2p.ConnectionStatus      { var cs p2p.ConnectionStatus; return cs }
-func (fp *fuzzPeer) SocketAddr() *p2p.NetAddress       { return p2p.NewNetAddress(fp.ID(), fp.RemoteAddr()) }
+func (fp *fuzzPeer) IsOutbound() bool             { return false }
+func (fp *fuzzPeer) IsPersistent() bool           { return false }
+func (fp *fuzzPeer) CloseConn() error             { return nil }
+func (fp *fuzzPeer) NodeInfo() types.NodeInfo     { return defaultNodeInfo }
+func (fp *fuzzPeer) Status() p2p.ConnectionStatus { var cs p2p.ConnectionStatus; return cs }
+func (fp *fuzzPeer) SocketAddr() *p2p.NetAddress {
+	return types.NewNetAddress(fp.ID(), fp.RemoteAddr())
+}
 func (fp *fuzzPeer) Send(byte, []byte) bool            { return true }
 func (fp *fuzzPeer) TrySend(byte, []byte) bool         { return true }
 func (fp *fuzzPeer) Set(key string, value interface{}) { fp.m[key] = value }

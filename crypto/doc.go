@@ -22,7 +22,7 @@
 //     pubKey := key.PubKey()
 
 // For example:
-//     privKey, err := ed25519.GenPrivKey()
+//     privKey, err := gost512.GenPrivKey()
 //     if err != nil {
 // 	...
 //     }
@@ -33,8 +33,8 @@
 
 // We also provide hashing wrappers around algorithms:
 
-// Sha256
-//     sum := crypto.Sha256([]byte("This is Tendermint"))
+// HashSum
+//     sum := crypto.HashSum([]byte("This is Tendermint"))
 //     fmt.Printf("%x\n", sum)
 
 package crypto

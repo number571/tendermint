@@ -1,5 +1,5 @@
 # stage 1 Generate Tendermint Binary
-FROM golang:1.15-alpine as builder
+FROM golang:1.16-alpine as builder
 RUN apk update && \
     apk upgrade && \
     apk --no-cache add make
@@ -49,7 +49,7 @@ ENV PROXY_APP=kvstore MONIKER=dockernode CHAIN_ID=dockerchain
 COPY ./DOCKER/docker-entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["node"]
+CMD ["start"]
 
 # Expose the data directory as a volume since there's mutable state in there
 VOLUME [ "$TMHOME" ]

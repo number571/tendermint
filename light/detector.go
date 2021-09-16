@@ -34,7 +34,7 @@ func (c *Client) detectDivergence(ctx context.Context, primaryTrace []*types.Lig
 		lastVerifiedHeader = primaryTrace[len(primaryTrace)-1].SignedHeader
 		witnessesToRemove  = make([]int, 0)
 	)
-	c.logger.Debug("Running detector against trace", "endBlockHeight", lastVerifiedHeader.Height,
+	c.logger.Debug("running detector against trace", "endBlockHeight", lastVerifiedHeader.Height,
 		"endBlockHash", lastVerifiedHeader.Hash, "length", len(primaryTrace))
 
 	c.providerMutex.Lock()
@@ -74,14 +74,14 @@ func (c *Client) detectDivergence(ctx context.Context, primaryTrace []*types.Lig
 			witnessesToRemove = append(witnessesToRemove, e.WitnessIndex)
 
 		case errBadWitness:
-			c.logger.Info("Witness returned an error during header comparison", "witness", c.witnesses[e.WitnessIndex],
-				"err", err)
-			// if witness sent us an invalid header, then remove it. If it didn't respond or couldn't find the block, then we
-			// ignore it and move on to the next witness
-			if _, ok := e.Reason.(provider.ErrBadLightBlock); ok {
-				c.logger.Info("Witness sent us invalid header / vals -> removing it", "witness", c.witnesses[e.WitnessIndex])
-				witnessesToRemove = append(witnessesToRemove, e.WitnessIndex)
+			c.logger.Info("witness returned an error during header comparison, removing...",
+				"witness", c.witnesses[e.WitnessIndex], "err", err)
+			witnessesToRemove = append(witnessesToRemove, e.WitnessIndex)
+		default:
+			if errors.Is(e, context.Canceled) || errors.Is(e, context.DeadlineExceeded) {
+				return e
 			}
+			c.logger.Info("error in light block request to witness", "err", err)
 		}
 	}
 
@@ -118,7 +118,7 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 
 	// the witness hasn't been helpful in comparing headers, we mark the response and continue
 	// comparing with the rest of the witnesses
-	case provider.ErrNoResponse, provider.ErrLightBlockNotFound:
+	case provider.ErrNoResponse, provider.ErrLightBlockNotFound, context.DeadlineExceeded, context.Canceled:
 		errc <- err
 		return
 
@@ -131,7 +131,11 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 		var isTargetHeight bool
 		isTargetHeight, lightBlock, err = c.getTargetBlockOrLatest(ctx, h.Height, witness)
 		if err != nil {
-			errc <- err
+			if c.providerShouldBeRemoved(err) {
+				errc <- errBadWitness{Reason: err, WitnessIndex: witnessIndex}
+			} else {
+				errc <- err
+			}
 			return
 		}
 
@@ -155,7 +159,11 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 		time.Sleep(2*c.maxClockDrift + c.maxBlockLag)
 		isTargetHeight, lightBlock, err = c.getTargetBlockOrLatest(ctx, h.Height, witness)
 		if err != nil {
-			errc <- errBadWitness{Reason: err, WitnessIndex: witnessIndex}
+			if c.providerShouldBeRemoved(err) {
+				errc <- errBadWitness{Reason: err, WitnessIndex: witnessIndex}
+			} else {
+				errc <- err
+			}
 			return
 		}
 		if isTargetHeight {
@@ -186,11 +194,11 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 		return
 	}
 
-	if !bytes.Equal(h.Hash(), lightBlock.Hash()) {
+	if !bytes.Equal(h.Header.Hash(), lightBlock.Header.Hash()) {
 		errc <- errConflictingHeaders{Block: lightBlock, WitnessIndex: witnessIndex}
 	}
 
-	c.logger.Debug("Matching header received by witness", "height", h.Height, "witness", witnessIndex)
+	c.logger.Debug("matching header received by witness", "height", h.Height, "witness", witnessIndex)
 	errc <- nil
 }
 
@@ -198,7 +206,7 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 func (c *Client) sendEvidence(ctx context.Context, ev *types.LightClientAttackEvidence, receiver provider.Provider) {
 	err := receiver.ReportEvidence(ctx, ev)
 	if err != nil {
-		c.logger.Error("Failed to report evidence to provider", "ev", ev, "provider", receiver)
+		c.logger.Error("failed to report evidence to provider", "ev", ev, "provider", receiver)
 	}
 }
 
@@ -397,9 +405,10 @@ func (c *Client) getTargetBlockOrLatest(
 // all the fields such that it is ready to be sent to a full node.
 func newLightClientAttackEvidence(conflicted, trusted, common *types.LightBlock) *types.LightClientAttackEvidence {
 	ev := &types.LightClientAttackEvidence{ConflictingBlock: conflicted}
+	// We use the common height to indicate the form of the attack.
 	// if this is an equivocation or amnesia attack, i.e. the validator sets are the same, then we
-	// return the height of the conflicting block else if it is a lunatic attack and the validator sets
-	// are not the same then we send the height of the common header.
+	// return the height of the conflicting block as the common height. If instead it is a lunatic
+	// attack and the validator sets are not the same then we send the height of the common header.
 	if ev.ConflictingHeaderIsInvalid(trusted.Header) {
 		ev.CommonHeight = common.Height
 		ev.Timestamp = common.Time

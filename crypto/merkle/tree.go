@@ -4,7 +4,7 @@ import (
 	"hash"
 	"math/bits"
 
-	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
+	ghash "bitbucket.org/number571/go-cryptopro/gost_r_34_11_2012"
 )
 
 // HashFromByteSlices computes a Merkle tree where the leaves are the byte slice,

@@ -1,9 +1,12 @@
 package abcicli_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
+
+	"math/rand"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -11,9 +14,10 @@ import (
 	abcicli "github.com/number571/tendermint/abci/client"
 	"github.com/number571/tendermint/abci/server"
 	"github.com/number571/tendermint/abci/types"
-	tmrand "github.com/number571/tendermint/libs/rand"
 	"github.com/number571/tendermint/libs/service"
 )
+
+var ctx = context.Background()
 
 func TestProperSyncCalls(t *testing.T) {
 	app := slowApp{}
@@ -33,11 +37,12 @@ func TestProperSyncCalls(t *testing.T) {
 	resp := make(chan error, 1)
 	go func() {
 		// This is BeginBlockSync unrolled....
-		reqres := c.BeginBlockAsync(types.RequestBeginBlock{})
-		err := c.FlushSync()
-		require.NoError(t, err)
+		reqres, err := c.BeginBlockAsync(ctx, types.RequestBeginBlock{})
+		assert.NoError(t, err)
+		err = c.FlushSync(context.Background())
+		assert.NoError(t, err)
 		res := reqres.Response.GetBeginBlock()
-		require.NotNil(t, res)
+		assert.NotNil(t, res)
 		resp <- c.Error()
 	}()
 
@@ -68,14 +73,16 @@ func TestHangingSyncCalls(t *testing.T) {
 	resp := make(chan error, 1)
 	go func() {
 		// Start BeginBlock and flush it
-		reqres := c.BeginBlockAsync(types.RequestBeginBlock{})
-		flush := c.FlushAsync()
+		reqres, err := c.BeginBlockAsync(ctx, types.RequestBeginBlock{})
+		assert.NoError(t, err)
+		flush, err := c.FlushAsync(ctx)
+		assert.NoError(t, err)
 		// wait 20 ms for all events to travel socket, but
 		// no response yet from server
 		time.Sleep(20 * time.Millisecond)
 		// kill the server, so the connections break
-		err := s.Stop()
-		require.NoError(t, err)
+		err = s.Stop()
+		assert.NoError(t, err)
 
 		// wait for the response from BeginBlock
 		reqres.Wait()
@@ -95,7 +102,7 @@ func TestHangingSyncCalls(t *testing.T) {
 func setupClientServer(t *testing.T, app types.Application) (
 	service.Service, abcicli.Client) {
 	// some port between 20k and 30k
-	port := 20000 + tmrand.Int32()%10000
+	port := 20000 + rand.Int31()%10000
 	addr := fmt.Sprintf("localhost:%d", port)
 
 	s, err := server.NewServer(addr, "socket", app)

@@ -4,19 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 
 	"github.com/number571/tendermint/abci/server"
 	"github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/crypto/ed25519"
-	tmflags "github.com/number571/tendermint/libs/cli/flags"
+	"github.com/number571/tendermint/crypto/gost512"
+	"github.com/number571/tendermint/internal/p2p"
 	"github.com/number571/tendermint/libs/log"
 	tmnet "github.com/number571/tendermint/libs/net"
 	"github.com/number571/tendermint/light"
@@ -24,16 +25,15 @@ import (
 	lrpc "github.com/number571/tendermint/light/rpc"
 	dbs "github.com/number571/tendermint/light/store/db"
 	"github.com/number571/tendermint/node"
-	"github.com/number571/tendermint/p2p"
 	"github.com/number571/tendermint/privval"
+	grpcprivval "github.com/number571/tendermint/privval/grpc"
+	privvalproto "github.com/number571/tendermint/proto/tendermint/privval"
 	"github.com/number571/tendermint/proxy"
 	rpcserver "github.com/number571/tendermint/rpc/jsonrpc/server"
 	e2e "github.com/number571/tendermint/test/e2e/pkg"
-	mcs "github.com/number571/tendermint/test/maverick/consensus"
-	maverick "github.com/number571/tendermint/test/maverick/node"
 )
 
-var logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+var logger = log.MustNewDefaultLogger(log.LogFormatPlain, log.LogLevelInfo, false)
 
 // main is the binary entrypoint.
 func main() {
@@ -74,14 +74,13 @@ func run(configFile string) error {
 	case "socket", "grpc":
 		err = startApp(cfg)
 	case "builtin":
-		if len(cfg.Misbehaviors) == 0 {
-			if cfg.Mode == string(e2e.ModeLight) {
-				err = startLightClient(cfg)
-			} else {
-				err = startNode(cfg)
-			}
-		} else {
-			err = startMaverick(cfg)
+		switch cfg.Mode {
+		case string(e2e.ModeLight):
+			err = startLightNode(cfg)
+		case string(e2e.ModeSeed):
+			err = startSeedNode(cfg)
+		default:
+			err = startNode(cfg)
 		}
 	default:
 		err = fmt.Errorf("invalid protocol %q", cfg.Protocol)
@@ -124,19 +123,15 @@ func startNode(cfg *Config) error {
 		return err
 	}
 
-	tmcfg, nodeLogger, nodeKey, err := setupNode()
+	tmcfg, nodeLogger, err := setupNode()
 	if err != nil {
 		return fmt.Errorf("failed to setup config: %w", err)
 	}
 
-	n, err := node.NewNode(tmcfg,
-		privval.LoadOrGenFilePV(tmcfg.PrivValidatorKeyFile(), tmcfg.PrivValidatorStateFile()),
-		nodeKey,
-		proxy.NewLocalClientCreator(app),
-		node.DefaultGenesisDocProviderFunc(tmcfg),
-		node.DefaultDBProvider,
-		node.DefaultMetricsProvider(tmcfg.Instrumentation),
+	n, err := node.New(tmcfg,
 		nodeLogger,
+		proxy.NewLocalClientCreator(app),
+		nil,
 	)
 	if err != nil {
 		return err
@@ -144,14 +139,29 @@ func startNode(cfg *Config) error {
 	return n.Start()
 }
 
-func startLightClient(cfg *Config) error {
-	tmcfg, nodeLogger, _, err := setupNode()
+func startSeedNode(cfg *Config) error {
+	tmcfg, nodeLogger, err := setupNode()
+	if err != nil {
+		return fmt.Errorf("failed to setup config: %w", err)
+	}
+
+	tmcfg.Mode = config.ModeSeed
+
+	n, err := node.New(tmcfg, nodeLogger, nil, nil)
+	if err != nil {
+		return err
+	}
+	return n.Start()
+}
+
+func startLightNode(cfg *Config) error {
+	tmcfg, nodeLogger, err := setupNode()
 	if err != nil {
 		return err
 	}
 
-	dbContext := &node.DBContext{ID: "light", Config: tmcfg}
-	lightDB, err := node.DefaultDBProvider(dbContext)
+	dbContext := &config.DBContext{ID: "light", Config: tmcfg}
+	lightDB, err := config.DefaultDBProvider(dbContext)
 	if err != nil {
 		return err
 	}
@@ -168,7 +178,7 @@ func startLightClient(cfg *Config) error {
 		},
 		providers[0],
 		providers[1:],
-		dbs.New(lightDB, "light"),
+		dbs.New(lightDB),
 		light.Logger(nodeLogger),
 	)
 	if err != nil {
@@ -201,54 +211,38 @@ func startLightClient(cfg *Config) error {
 	return nil
 }
 
-// FIXME: Temporarily disconnected maverick until it is redesigned
-// startMaverick starts a Maverick node that runs the application directly. It assumes the Tendermint
-// configuration is in $TMHOME/config/tendermint.toml.
-func startMaverick(cfg *Config) error {
-	app, err := NewApplication(cfg)
-	if err != nil {
-		return err
-	}
-
-	tmcfg, logger, nodeKey, err := setupNode()
-	if err != nil {
-		return fmt.Errorf("failed to setup config: %w", err)
-	}
-
-	misbehaviors := make(map[int64]mcs.Misbehavior, len(cfg.Misbehaviors))
-	for heightString, misbehaviorString := range cfg.Misbehaviors {
-		height, _ := strconv.ParseInt(heightString, 10, 64)
-		misbehaviors[height] = mcs.MisbehaviorList[misbehaviorString]
-	}
-
-	n, err := maverick.NewNode(tmcfg,
-		maverick.LoadOrGenFilePV(tmcfg.PrivValidatorKeyFile(), tmcfg.PrivValidatorStateFile()),
-		nodeKey,
-		proxy.NewLocalClientCreator(app),
-		maverick.DefaultGenesisDocProviderFunc(tmcfg),
-		maverick.DefaultDBProvider,
-		maverick.DefaultMetricsProvider(tmcfg.Instrumentation),
-		logger,
-		misbehaviors,
-	)
-	if err != nil {
-		return err
-	}
-
-	return n.Start()
-}
-
 // startSigner starts a signer server connecting to the given endpoint.
 func startSigner(cfg *Config) error {
-	filePV := privval.LoadFilePV(cfg.PrivValKey, cfg.PrivValState)
+	filePV, err := privval.LoadFilePV(cfg.PrivValKey, cfg.PrivValState)
+	if err != nil {
+		return err
+	}
 
 	protocol, address := tmnet.ProtocolAndAddress(cfg.PrivValServer)
 	var dialFn privval.SocketDialer
 	switch protocol {
 	case "tcp":
-		dialFn = privval.DialTCPFn(address, 3*time.Second, ed25519.GenPrivKey())
+		dialFn = privval.DialTCPFn(address, 3*time.Second, gost512.GenPrivKey())
 	case "unix":
 		dialFn = privval.DialUnixFn(address)
+	case "grpc":
+		lis, err := net.Listen("tcp", address)
+		if err != nil {
+			return err
+		}
+		ss := grpcprivval.NewSignerServer(cfg.ChainID, filePV, logger)
+
+		s := grpc.NewServer()
+
+		privvalproto.RegisterPrivValidatorAPIServer(s, ss)
+
+		go func() { // no need to clean up since we remove docker containers
+			if err := s.Serve(lis); err != nil {
+				panic(err)
+			}
+		}()
+
+		return nil
 	default:
 		return fmt.Errorf("invalid privval protocol %q", protocol)
 	}
@@ -256,58 +250,48 @@ func startSigner(cfg *Config) error {
 	endpoint := privval.NewSignerDialerEndpoint(logger, dialFn,
 		privval.SignerDialerEndpointRetryWaitInterval(1*time.Second),
 		privval.SignerDialerEndpointConnRetries(100))
-	err := privval.NewSignerServer(endpoint, cfg.ChainID, filePV).Start()
+	err = privval.NewSignerServer(endpoint, cfg.ChainID, filePV).Start()
 	if err != nil {
 		return err
 	}
+
 	logger.Info(fmt.Sprintf("Remote signer connecting to %v", cfg.PrivValServer))
 	return nil
 }
 
-func setupNode() (*config.Config, log.Logger, *p2p.NodeKey, error) {
+func setupNode() (*config.Config, log.Logger, error) {
 	var tmcfg *config.Config
 
 	home := os.Getenv("TMHOME")
 	if home == "" {
-		return nil, nil, nil, errors.New("TMHOME not set")
+		return nil, nil, errors.New("TMHOME not set")
 	}
 
 	viper.AddConfigPath(filepath.Join(home, "config"))
 	viper.SetConfigName("config")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	tmcfg = config.DefaultConfig()
 
 	if err := viper.Unmarshal(tmcfg); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	tmcfg.SetRoot(home)
 
 	if err := tmcfg.ValidateBasic(); err != nil {
-		return nil, nil, nil, fmt.Errorf("error in config file: %w", err)
+		return nil, nil, fmt.Errorf("error in config file: %w", err)
 	}
 
-	if tmcfg.LogFormat == config.LogFormatJSON {
-		logger = log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout))
-	}
-
-	nodeLogger, err := tmflags.ParseLogLevel(tmcfg.LogLevel, logger, config.DefaultLogLevel)
+	nodeLogger, err := log.NewDefaultLogger(tmcfg.LogFormat, tmcfg.LogLevel, false)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	nodeLogger = nodeLogger.With("module", "main")
-
-	nodeKey, err := p2p.LoadOrGenNodeKey(tmcfg.NodeKeyFile())
-	if err != nil {
-		return nil, nil, nil, fmt.Errorf("failed to load or gen node key %s: %w", tmcfg.NodeKeyFile(), err)
-	}
-
-	return tmcfg, nodeLogger, nodeKey, nil
+	return tmcfg, nodeLogger.With("module", "main"), nil
 }
 
 // rpcEndpoints takes a list of persistent peers and splits them into a list of rpc endpoints
@@ -316,11 +300,19 @@ func rpcEndpoints(peers string) []string {
 	arr := strings.Split(peers, ",")
 	endpoints := make([]string, len(arr))
 	for i, v := range arr {
-		urlString := strings.SplitAfter(v, "@")[1]
-		hostName := strings.Split(urlString, ":26656")[0]
+		addr, err := p2p.ParseNodeAddress(v)
+		if err != nil {
+			panic(err)
+		}
 		// use RPC port instead
-		port := 26657
-		rpcEndpoint := "http://" + hostName + ":" + fmt.Sprint(port)
+		addr.Port = 26657
+		var rpcEndpoint string
+		// for ipv6 addresses
+		if strings.Contains(addr.Hostname, ":") {
+			rpcEndpoint = "http://[" + addr.Hostname + "]:" + fmt.Sprint(addr.Port)
+		} else { // for ipv4 addresses
+			rpcEndpoint = "http://" + addr.Hostname + ":" + fmt.Sprint(addr.Port)
+		}
 		endpoints[i] = rpcEndpoint
 	}
 	return endpoints

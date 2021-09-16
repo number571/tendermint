@@ -28,7 +28,7 @@ has at least one peer and it's height is at least as high as the max
 reported peer height. See [the IsCaughtUp
 method](https://github.com/number571/tendermint/blob/b467515719e686e4678e6da4e102f32a491b85a0/blockchain/pool.go#L128).
 
-Note: There are three versions of fast sync. We recommend using v0 as v1 and v2 are still in beta. 
+Note: There are three versions of fast sync. We recommend using v0 as v2 is still in beta.
   If you would like to use a different version you can do so by changing the version in the `config.toml`:
 
 ```toml
@@ -39,10 +39,19 @@ Note: There are three versions of fast sync. We recommend using v0 as v1 and v2 
 
 # Fast Sync version to use:
 #   1) "v0" (default) - the legacy fast sync implementation
-#   2) "v1" - refactor of v0 version for better testability
-#   2) "v2" - complete redesign of v0, optimized for testability & readability 
+#   2) "v2" - complete redesign of v0, optimized for testability & readability
 version = "v0"
 ```
 
 If we're lagging sufficiently, we should go back to fast syncing, but
 this is an [open issue](https://github.com/number571/tendermint/issues/129).
+
+## The Fast Sync event
+When the tendermint blockchain core launches, it might switch to the `fast-sync`
+mode to catch up the states to the current network best height. the core will emits
+a fast-sync event to expose the current status and the sync height. Once it catched
+the network best height, it will switches to the state sync mechanism and then emit
+another event for exposing the fast-sync `complete` status and the state `height`.
+
+The user can query the events by subscribing `EventQueryFastSyncStatus`
+Please check [types](https://pkg.go.dev/github.com/number571/tendermint/types?utm_source=godoc#pkg-constants) for the details.

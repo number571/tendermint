@@ -12,7 +12,7 @@ import (
 	"io"
 	"os"
 
-	cs "github.com/number571/tendermint/consensus"
+	cs "github.com/number571/tendermint/internal/consensus"
 	tmjson "github.com/number571/tendermint/libs/json"
 )
 

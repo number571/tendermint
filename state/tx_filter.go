@@ -1,7 +1,7 @@
 package state
 
 import (
-	mempl "github.com/number571/tendermint/mempool"
+	mempl "github.com/number571/tendermint/internal/mempool"
 	"github.com/number571/tendermint/types"
 )
 

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/number571/tendermint/crypto"
+	"github.com/number571/tendermint/internal/libs/protoio"
 	tmbytes "github.com/number571/tendermint/libs/bytes"
-	"github.com/number571/tendermint/libs/protoio"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 )
 

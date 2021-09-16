@@ -48,8 +48,25 @@ type Manifest struct {
 	Nodes map[string]*ManifestNode `toml:"node"`
 
 	// KeyType sets the curve that will be used by validators.
-	// Options are ed25519 & secp256k1
+	// Options are gost512 & gost256
 	KeyType string `toml:"key_type"`
+
+	// Evidence indicates the amount of evidence that will be injected into the
+	// testnet via the RPC endpoint of a random node. Default is 0
+	Evidence int `toml:"evidence"`
+
+	// LogLevel sets the log level of the entire testnet. This can be overridden
+	// by individual nodes.
+	LogLevel string `toml:"log_level"`
+
+	// DisableLegacyP2P enables use of the new p2p layer for all nodes in a test.
+	DisableLegacyP2P bool `toml:"disable_legacy_p2p"`
+
+	// QueueType describes the type of queue that the system uses internally
+	QueueType string `toml:"queue_type"`
+
+	// Number of bytes per tx. Default is 1kb (1024)
+	TxSize int64
 }
 
 // ManifestNode represents a node in a testnet manifest.
@@ -79,8 +96,9 @@ type ManifestNode struct {
 	ABCIProtocol string `toml:"abci_protocol"`
 
 	// PrivvalProtocol specifies the protocol used to sign consensus messages:
-	// "file", "unix", or "tcp". Defaults to "file". For unix and tcp, the ABCI
+	// "file", "unix", "tcp", or "grpc". Defaults to "file". For tcp and unix, the ABCI
 	// application will launch a remote signer client in a separate goroutine.
+	// For grpc the ABCI application will launch a remote signer server.
 	// Only nodes with mode=validator will actually make use of this.
 	PrivvalProtocol string `toml:"privval_protocol"`
 
@@ -88,9 +106,12 @@ type ManifestNode struct {
 	// runner will wait for the network to reach at least this block height.
 	StartAt int64 `toml:"start_at"`
 
-	// FastSync specifies the fast sync mode: "" (disable), "v0", "v1", or "v2".
+	// FastSync specifies the fast sync mode: "" (disable), "v0" or "v2".
 	// Defaults to disabled.
 	FastSync string `toml:"fast_sync"`
+
+	// Mempool specifies which version of mempool to use. Either "v0" or "v1"
+	Mempool string `toml:"mempool_version"`
 
 	// StateSync enables state sync. The runner automatically configures trusted
 	// block hashes and RPC servers. At least one node in the network must have
@@ -108,8 +129,8 @@ type ManifestNode struct {
 	SnapshotInterval uint64 `toml:"snapshot_interval"`
 
 	// RetainBlocks specifies the number of recent blocks to retain. Defaults to
-	// 0, which retains all blocks. Must be greater that PersistInterval and
-	// SnapshotInterval.
+	// 0, which retains all blocks. Must be greater that PersistInterval,
+	// SnapshotInterval and EvidenceAgeHeight.
 	RetainBlocks uint64 `toml:"retain_blocks"`
 
 	// Perturb lists perturbations to apply to the node after it has been
@@ -121,15 +142,13 @@ type ManifestNode struct {
 	// restart:    restarts the node, shutting it down with SIGTERM
 	Perturb []string `toml:"perturb"`
 
-	// Misbehaviors sets how a validator behaves during consensus at a
-	// certain height. Multiple misbehaviors at different heights can be used
-	//
-	// An example of misbehaviors
-	//    { 10 = "double-prevote", 20 = "double-prevote"}
-	//
-	// For more information, look at the readme in the maverick folder.
-	// A list of all behaviors can be found in ../maverick/consensus/behavior.go
-	Misbehaviors map[string]string `toml:"misbehaviors"`
+	// Log level sets the log level of the specific node i.e. "info".
+	// This is helpful when debugging a specific problem. This overrides the network
+	// level.
+	LogLevel string `toml:"log_level"`
+
+	// UseNewP2P enables use of the new p2p layer for this node.
+	DisableLegacyP2P bool `toml:"disable_legacy_p2p"`
 }
 
 // Save saves the testnet manifest to a file.

@@ -340,7 +340,7 @@ paths:
         import rpchttp "github.com/tendermint/rpc/client/http"
         import "github.com/number571/tendermint/types"
 
-        client := rpchttp.New("tcp:0.0.0.0:26657", "/websocket")
+        client := rpchttp.New("tcp://0.0.0.0:26657")
         err := client.Start()
         if err != nil {
           handle error
@@ -397,7 +397,7 @@ paths:
       operationId: unsubscribe
       description: |
         ```go
-        client := rpchttp.New("tcp:0.0.0.0:26657", "/websocket")
+        client := rpchttp.New("tcp://0.0.0.0:26657")
         err := client.Start()
         if err != nil {
            handle error
@@ -484,7 +484,7 @@ paths:
       tags:
         - Info
       description: |
-        Get Tendermint status including node info, pubkey, latest block hash, app hash, block height and time.
+        Get Tendermint status including node info, pubkey, latest block hash, app hash, block height, current max peer height, and time.
       responses:
         "200":
           description: Status of the node
@@ -537,8 +537,7 @@ paths:
             type: array
             items:
               type: string
-              example:
-                ["f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656"]
+              example: "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656"
       responses:
         "200":
           description: Dialing seeds in progress. See /net_info for details
@@ -588,8 +587,7 @@ paths:
             type: array
             items:
               type: string
-              example:
-                ["f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656"]
+              example: "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656"
       responses:
         "200":
           description: Dialing seeds in progress. See /net_info for details
@@ -625,7 +623,12 @@ paths:
       description: |
         Get block headers for minHeight <= height maxHeight.
 
-        At most 20 items will be returned.
+        If maxHeight does not yet exist, blocks up to the current height will
+        be returned. If minHeight does not exist (due to pruning), earliest
+        existing height will be used.
+
+        At most 20 items will be returned. Block headers are returned in
+        descending order (highest first).
       responses:
         "200":
           description: Block headers, returned in descending order (highest first).
@@ -719,7 +722,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BlockResultsResponse"
+                $ref: "#/components/schemas/BlockSearchResponse"
         "500":
           description: Error
           content:
@@ -789,7 +792,7 @@ paths:
       tags:
         - Info
       description: |
-        Get Validators. Validators are sorted by voting power.
+        Get Validators. Validators are sorted first by voting power (descending), then by address (ascending).
       responses:
         "200":
           description: Commit results.
@@ -999,7 +1002,7 @@ paths:
           required: false
           schema:
             type: string
-            default: "asc"
+            default: "desc"
             example: "asc"
       tags:
         - Info
@@ -1064,7 +1067,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BlockSearchResponse"
+                $ref: "#/components/schemas/BlockResultsResponse"
         "500":
           description: Error
           content:
@@ -1195,7 +1198,7 @@ paths:
             type: string
             example: "JSON_EVIDENCE_encoded"
       tags:
-        - Info
+        - Evidence
       description: |
         Broadcast evidence of the misbehavior.
       responses:
@@ -1272,7 +1275,7 @@ components:
           example: "5576458aef205977e18fd50b274e9b5d9014525a"
         listen_addr:
           type: string
-          example: "tcp:0.0.0.0:26656"
+          example: "tcp://0.0.0.0:26656"
         network:
           type: string
           example: "cosmoshub-2"
@@ -1293,7 +1296,7 @@ components:
               example: "on"
             rpc_address:
               type: string
-              example: "tcp:0.0.0.0:26657"
+              example: "tcp://0.0.0.0:26657"
     SyncInfo:
       type: object
       properties:
@@ -1321,9 +1324,18 @@ components:
         earliest_block_time:
           type: string
           example: "2019-08-01T11:52:22.818762194Z"
+        max_peer_block_height:
+          type: string
+          example: "1262196"
         catching_up:
           type: boolean
           example: false
+        total_synced_time:
+          type: string
+          example: "1000000000"
+        remaining_time:
+          type: string
+          example: "0"
     ValidatorInfo:
       type: object
       properties:
@@ -1660,6 +1672,9 @@ components:
                   codespace:
                     type: string
                     example: "ibc"
+            total_gas_used:
+              type: string
+              example: "100"
             begin_block_events:
               type: array
               nullable: true
@@ -2741,6 +2756,33 @@ components:
         Log:
           type: string
           example: "Dialing seeds in progress. See /net_info for details"
+
+    BlockSearchResponse:
+      type: object
+      required:
+        - "jsonrpc"
+        - "id"
+        - "result"
+      properties:
+        jsonrpc:
+          type: string
+          example: "2.0"
+        id:
+          type: integer
+          example: 0
+        result:
+          required:
+            - "blocks"
+            - "total_count"
+          properties:
+            blocks:
+              type: array
+              items:
+                $ref: "#/components/schemas/BlockComplete"
+            total_count:
+              type: integer
+              example: 2
+          type: object
 
     ###### Reuseable types ######
 

@@ -2,8 +2,7 @@
 package main
 
 import (
-	// "crypto/sha256"
-	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
+	ghash "bitbucket.org/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"encoding/json"
 	"errors"
@@ -21,7 +20,7 @@ type State struct {
 	Values map[string]string
 	Hash   []byte
 
-	// private fields aren't marshalled to disk.
+	// private fields aren't marshaled to disk.
 	file            string
 	persistInterval uint64
 	initialHeight   uint64
@@ -146,7 +145,7 @@ func hashItems(items map[string]string) []byte {
 	}
 	sort.Strings(keys)
 
-	hasher := ghash.New(ghash.H256)
+	hasher := ghash.New()
 	for _, key := range keys {
 		_, _ = hasher.Write([]byte(key))
 		_, _ = hasher.Write([]byte{0})

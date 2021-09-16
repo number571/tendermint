@@ -92,10 +92,19 @@ func ServeTLS(
 // WriteRPCResponseHTTPError marshals res as JSON (with indent) and writes it
 // to w.
 //
+// Maps JSON RPC error codes to HTTP Status codes as follows:
+//
+// HTTP Status	code	message
+// 500	-32700	Parse error.
+// 400	-32600	Invalid Request.
+// 404	-32601	Method not found.
+// 500	-32602	Invalid params.
+// 500	-32603	Internal error.
+// 500	-32099..-32000	Server error.
+//
 // source: https://www.jsonrpc.org/historical/json-rpc-over-http.html
 func WriteRPCResponseHTTPError(
 	w http.ResponseWriter,
-	httpCode int,
 	res types.RPCResponse,
 ) error {
 	if res.Error == nil {
@@ -107,6 +116,16 @@ func WriteRPCResponseHTTPError(
 		return fmt.Errorf("json marshal: %w", err)
 	}
 
+	var httpCode int
+	switch res.Error.Code {
+	case -32600:
+		httpCode = http.StatusBadRequest
+	case -32601:
+		httpCode = http.StatusNotFound
+	default:
+		httpCode = http.StatusInternalServerError
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 	_, err = w.Write(jsonBytes)
@@ -114,7 +133,8 @@ func WriteRPCResponseHTTPError(
 }
 
 // WriteRPCResponseHTTP marshals res as JSON (with indent) and writes it to w.
-func WriteRPCResponseHTTP(w http.ResponseWriter, res ...types.RPCResponse) error {
+// If the rpc response can be cached, add cache-control to the response header.
+func WriteRPCResponseHTTP(w http.ResponseWriter, c bool, res ...types.RPCResponse) error {
 	var v interface{}
 	if len(res) == 1 {
 		v = res[0]
@@ -127,6 +147,9 @@ func WriteRPCResponseHTTP(w http.ResponseWriter, res ...types.RPCResponse) error
 		return fmt.Errorf("json marshal: %w", err)
 	}
 	w.Header().Set("Content-Type", "application/json")
+	if c {
+		w.Header().Set("Cache-Control", "max-age=31536000") // expired after one year
+	}
 	w.WriteHeader(200)
 	_, err = w.Write(jsonBytes)
 	return err
@@ -167,7 +190,7 @@ func RecoverAndLogHandler(handler http.Handler, logger log.Logger) http.Handler 
 
 				// If RPCResponse
 				if res, ok := e.(types.RPCResponse); ok {
-					if wErr := WriteRPCResponseHTTP(rww, res); wErr != nil {
+					if wErr := WriteRPCResponseHTTP(rww, false, res); wErr != nil {
 						logger.Error("failed to write response", "res", res, "err", wErr)
 					}
 				} else {
@@ -186,7 +209,7 @@ func RecoverAndLogHandler(handler http.Handler, logger log.Logger) http.Handler 
 					logger.Error("panic in RPC HTTP handler", "err", e, "stack", string(debug.Stack()))
 
 					res := types.RPCInternalError(types.JSONRPCIntID(-1), err)
-					if wErr := WriteRPCResponseHTTPError(rww, http.StatusInternalServerError, res); wErr != nil {
+					if wErr := WriteRPCResponseHTTPError(rww, res); wErr != nil {
 						logger.Error("failed to write response", "res", res, "err", wErr)
 					}
 				}

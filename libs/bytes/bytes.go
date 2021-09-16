@@ -1,13 +1,20 @@
 package bytes
 
 import (
+	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strings"
 )
 
 // HexBytes enables HEX-encoding for json/encoding.
 type HexBytes []byte
+
+var (
+	_ json.Marshaler   = HexBytes{}
+	_ json.Unmarshaler = &HexBytes{}
+)
 
 // Marshal needed for protobuf compatibility
 func (bz HexBytes) Marshal() ([]byte, error) {
@@ -20,7 +27,8 @@ func (bz *HexBytes) Unmarshal(data []byte) error {
 	return nil
 }
 
-// This is the point of Bytes.
+// MarshalJSON implements the json.Marshaler interface. The hex bytes is a
+// quoted hexadecimal encoded string.
 func (bz HexBytes) MarshalJSON() ([]byte, error) {
 	s := strings.ToUpper(hex.EncodeToString(bz))
 	jbz := make([]byte, len(s)+2)
@@ -30,20 +38,27 @@ func (bz HexBytes) MarshalJSON() ([]byte, error) {
 	return jbz, nil
 }
 
-// This is the point of Bytes.
+// UnmarshalJSON implements the json.Umarshaler interface.
 func (bz *HexBytes) UnmarshalJSON(data []byte) error {
+	if bytes.Equal(data, []byte("null")) {
+		return nil
+	}
+
 	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
 		return fmt.Errorf("invalid hex string: %s", data)
 	}
+
 	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
 	if err != nil {
 		return err
 	}
+
 	*bz = bz2
+
 	return nil
 }
 
-// Bytes fulfils various interfaces in light-client, etc...
+// Bytes fulfills various interfaces in light-client, etc...
 func (bz HexBytes) Bytes() []byte {
 	return bz
 }

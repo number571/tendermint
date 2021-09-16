@@ -59,7 +59,7 @@ When preparing our public API for 1.0, we should keep these principles in mind:
 The following is the minimum set of public APIs that will be included in 1.0, in some form:
 
 - `abci`
-- `node` and related packages (e.g. possibly `config`, `libs/log`, and `version`)
+- packages used for constructing nodes `config`, `libs/log`, and `version`
 - Client APIs, i.e. `rpc/client`, `light`, and `privval`.
 - `crypto` (possibly as a separate repo)
 
@@ -91,9 +91,9 @@ For comparison, the following are the number of Tendermint imports in the Cosmos
       4 github.com/number571/tendermint/libs/rand
       1 github.com/number571/tendermint/libs/strings
       5 github.com/number571/tendermint/light
-      1 github.com/number571/tendermint/mempool
+      1 github.com/number571/tendermint/internal/mempool
       3 github.com/number571/tendermint/node
-      5 github.com/number571/tendermint/p2p
+      5 github.com/number571/tendermint/internal/p2p
       4 github.com/number571/tendermint/privval
      10 github.com/number571/tendermint/proto/tendermint/crypto
       1 github.com/number571/tendermint/proto/tendermint/libs/bits

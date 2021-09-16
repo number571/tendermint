@@ -1,19 +1,16 @@
 ---
 order: 1
 parent:
-  title: Tendermint Core
-  order: 4
+  title: System
+  order: 5
 ---
 
 # Overview
 
-This section dives into the internals of Tendermint the implementation.
+This section dives into the internals of Go-Tendermint.
 
 - [Using Tendermint](./using-tendermint.md)
-- [Configuration](./configuration.md)
 - [Running in Production](./running-in-production.md)
-- [Metrics](./metrics.md)
-- [Validators](./validators.md)
 - [Subscribing to events](./subscription.md)
 - [Block Structure](./block-structure.md)
 - [RPC](./rpc.md)

@@ -1,11 +1,8 @@
 package state
 
 import (
-	dbm "github.com/tendermint/tm-db"
-
 	abci "github.com/number571/tendermint/abci/types"
 	tmstate "github.com/number571/tendermint/proto/tendermint/state"
-	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 	"github.com/number571/tendermint/types"
 )
 
@@ -19,8 +16,6 @@ import (
 // testing, and should be refactoring exported entities to make them more
 // easily testable from outside of the package.
 //
-
-const ValSetCheckpointInterval = valSetCheckpointInterval
 
 // UpdateState is an alias for updateState exported from execution.go,
 // exclusively and explicitly for testing.
@@ -36,13 +31,6 @@ func UpdateState(
 
 // ValidateValidatorUpdates is an alias for validateValidatorUpdates exported
 // from execution.go, exclusively and explicitly for testing.
-func ValidateValidatorUpdates(abciUpdates []abci.ValidatorUpdate, params tmproto.ValidatorParams) error {
+func ValidateValidatorUpdates(abciUpdates []abci.ValidatorUpdate, params types.ValidatorParams) error {
 	return validateValidatorUpdates(abciUpdates, params)
-}
-
-// SaveValidatorsInfo is an alias for the private saveValidatorsInfo method in
-// store.go, exported exclusively and explicitly for testing.
-func SaveValidatorsInfo(db dbm.DB, height, lastHeightChanged int64, valSet *types.ValidatorSet) error {
-	stateStore := dbStore{db}
-	return stateStore.saveValidatorsInfo(height, lastHeightChanged, valSet)
 }

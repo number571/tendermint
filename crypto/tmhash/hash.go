@@ -3,7 +3,7 @@ package tmhash
 import (
 	"hash"
 
-	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
+	ghash "bitbucket.org/number571/go-cryptopro/gost_r_34_11_2012"
 )
 
 const (

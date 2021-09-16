@@ -21,7 +21,7 @@ this by setting the `TMHOME` environment variable.
 Initialize the root directory by running:
 
 ```sh
-tendermint init
+tendermint init validator
 ```
 
 This will create a new private key (`priv_validator_key.json`), and a
@@ -53,9 +53,7 @@ definition](https://github.com/number571/tendermint/blob/master/types/genesis.go
     - `block`
         - `max_bytes`: Max block size, in bytes.
         - `max_gas`: Max gas per block.
-        - `time_iota_ms`: Minimum time increment between consecutive blocks (in
-      milliseconds). If the block header timestamp is ahead of the system clock,
-      decrease this value.
+        - `time_iota_ms`: Unused. This has been deprecated and will be removed in a future version.
     - `evidence`
         - `max_age_num_blocks`: Max age of evidence, in blocks. The basic formula
       for calculating this is: MaxAgeDuration / {average block time}.
@@ -129,7 +127,7 @@ definition](https://github.com/number571/tendermint/blob/master/types/genesis.go
 To run a Tendermint node, use:
 
 ```bash
-tendermint node
+tendermint start
 ```
 
 By default, Tendermint will try to connect to an ABCI application on
@@ -138,7 +136,7 @@ another window. If you don't, kill Tendermint and run an in-process version of
 the `kvstore` app:
 
 ```bash
-tendermint node --proxy_app=kvstore
+tendermint start --proxy-app=kvstore
 ```
 
 After a few seconds, you should see blocks start streaming in. Note that blocks
@@ -148,14 +146,14 @@ Blocks_, below, to modify this setting.
 Tendermint supports in-process versions of the `counter`, `kvstore`, and `noop`
 apps that ship as examples with `abci-cli`. It's easy to compile your app
 in-process with Tendermint if it's written in Go. If your app is not written in
-Go, run it in another process, and use the `--proxy_app` flag to specify the
+Go, run it in another process, and use the `--proxy-app` flag to specify the
 address of the socket it is listening on, for instance:
 
 ```bash
-tendermint node --proxy_app=/var/run/abci.sock
+tendermint start --proxy-app=/var/run/abci.sock
 ```
 
-You can find out what flags are supported by running `tendermint node --help`.
+You can find out what flags are supported by running `tendermint start --help`.
 
 ## Transactions
 
@@ -254,7 +252,7 @@ Tendermint uses a `config.toml` for configuration. For details, see [the
 config specification](./configuration.md).
 
 Notable options include the socket address of the application
-(`proxy_app`), the listening address of the Tendermint peer
+(`proxy-app`), the listening address of the Tendermint peer
 (`p2p.laddr`), and the listening address of the RPC server
 (`rpc.laddr`).
 
@@ -272,7 +270,7 @@ transactions or the app hash changes, run Tendermint with this
 additional flag:
 
 ```sh
-tendermint node --consensus.create_empty_blocks=false
+tendermint start --consensus.create_empty_blocks=false
 ```
 
 or set the configuration via the `config.toml` file:
@@ -441,13 +439,13 @@ have to use a seed node if you have a live persistent peer.
 To connect to peers on start-up, specify them in the
 `$TMHOME/config/config.toml` or on the command line. Use `seeds` to
 specify seed nodes, and
-`persistent_peers` to specify peers that your node will maintain
+`persistent-peers` to specify peers that your node will maintain
 persistent connections with.
 
 For example,
 
 ```sh
-tendermint node --p2p.seeds "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656,0491d373a8e0fcf1023aaf18c51d6a1d0d4f31bd@5.6.7.8:26656"
+tendermint start --p2p.seeds "f9baeaa15fedf5e1ef7448dd60f46c01f1a9e9c4@1.2.3.4:26656,0491d373a8e0fcf1023aaf18c51d6a1d0d4f31bd@5.6.7.8:26656"
 ```
 
 Alternatively, you can use the `/dial_seeds` endpoint of the RPC to
@@ -462,12 +460,12 @@ should not need seeds after the first start.
 
 If you want Tendermint to connect to specific set of addresses and
 maintain a persistent connection with each, you can use the
-`--p2p.persistent_peers` flag or the corresponding setting in the
+`--p2p.persistent-peers` flag or the corresponding setting in the
 `config.toml` or the `/dial_peers` RPC endpoint to do it without
 stopping Tendermint core instance.
 
 ```sh
-tendermint node --p2p.persistent_peers "429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656,96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"
+tendermint start --p2p.persistent-peers "429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656,96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"
 
 curl 'localhost:26657/dial_peers?persistent=true&peers=\["429fcf25974313b95673f58d77eacdd434402665@10.11.12.13:26656","96663a3dd0d7b9d17d4c8211b191af259621c693@10.11.12.14:26656"\]'
 ```
@@ -545,8 +543,8 @@ Update the `genesis.json` in `~/.tendermint/config`. Copy the genesis
 file and the new `priv_validator_key.json` to the `~/.tendermint/config` on
 a new machine.
 
-Now run `tendermint node` on both machines, and use either
-`--p2p.persistent_peers` or the `/dial_peers` to get them to peer up.
+Now run `tendermint start` on both machines, and use either
+`--p2p.persistent-peers` or the `/dial_peers` to get them to peer up.
 They should start making blocks, and will only continue to do so as long
 as both of them are online.
 
@@ -554,8 +552,7 @@ To make a Tendermint network that can tolerate one of the validators
 failing, you need at least four validator nodes (e.g., 2/3).
 
 Updating validators in a live network is supported but must be
-explicitly programmed by the application developer. See the [application
-developers guide](../app-dev/app-development.md) for more details.
+explicitly programmed by the application developer.
 
 ### Local Network
 

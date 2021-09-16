@@ -8,7 +8,6 @@ import (
 
 	"github.com/number571/tendermint/crypto"
 	ce "github.com/number571/tendermint/crypto/encoding"
-	tmrand "github.com/number571/tendermint/libs/rand"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 )
 
@@ -171,23 +170,4 @@ func ValidatorFromProto(vp *tmproto.Validator) (*Validator, error) {
 	v.ProposerPriority = vp.GetProposerPriority()
 
 	return v, nil
-}
-
-//----------------------------------------
-// RandValidator
-
-// RandValidator returns a randomized validator, useful for testing.
-// UNSTABLE
-func RandValidator(randPower bool, minPower int64) (*Validator, PrivValidator) {
-	privVal := NewMockPV()
-	votePower := minPower
-	if randPower {
-		votePower += int64(tmrand.Uint32())
-	}
-	pubKey, err := privVal.GetPubKey()
-	if err != nil {
-		panic(fmt.Errorf("could not retrieve pubkey %w", err))
-	}
-	val := NewValidator(pubKey, votePower)
-	return val, privVal
 }

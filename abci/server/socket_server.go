@@ -9,10 +9,10 @@ import (
 	"runtime"
 
 	"github.com/number571/tendermint/abci/types"
+	tmsync "github.com/number571/tendermint/internal/libs/sync"
 	tmlog "github.com/number571/tendermint/libs/log"
 	tmnet "github.com/number571/tendermint/libs/net"
 	"github.com/number571/tendermint/libs/service"
-	tmsync "github.com/number571/tendermint/libs/sync"
 )
 
 // var maxNumberConnections = 2
@@ -200,9 +200,6 @@ func (s *SocketServer) handleRequest(req *types.Request, responses chan<- *types
 	case *types.Request_Info:
 		res := s.app.Info(*r.Info)
 		responses <- types.ToResponseInfo(res)
-	case *types.Request_SetOption:
-		res := s.app.SetOption(*r.SetOption)
-		responses <- types.ToResponseSetOption(res)
 	case *types.Request_DeliverTx:
 		res := s.app.DeliverTx(*r.DeliverTx)
 		responses <- types.ToResponseDeliverTx(res)

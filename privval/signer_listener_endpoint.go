@@ -5,9 +5,9 @@ import (
 	"net"
 	"time"
 
+	tmsync "github.com/number571/tendermint/internal/libs/sync"
 	"github.com/number571/tendermint/libs/log"
 	"github.com/number571/tendermint/libs/service"
-	tmsync "github.com/number571/tendermint/libs/sync"
 	privvalproto "github.com/number571/tendermint/proto/tendermint/privval"
 )
 

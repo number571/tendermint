@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/number571/tendermint/light/provider"
 	"github.com/number571/tendermint/types"
 )
 
 type Mock struct {
-	chainID string
+	id string
 
 	mtx              sync.Mutex
 	headers          map[int64]*types.SignedHeader
@@ -25,7 +26,7 @@ var _ provider.Provider = (*Mock)(nil)
 
 // New creates a mock provider with the given set of headers and validator
 // sets.
-func New(chainID string, headers map[int64]*types.SignedHeader, vals map[int64]*types.ValidatorSet) *Mock {
+func New(id string, headers map[int64]*types.SignedHeader, vals map[int64]*types.ValidatorSet) *Mock {
 	height := int64(0)
 	for h := range headers {
 		if h > height {
@@ -33,17 +34,12 @@ func New(chainID string, headers map[int64]*types.SignedHeader, vals map[int64]*
 		}
 	}
 	return &Mock{
-		chainID:          chainID,
+		id:               id,
 		headers:          headers,
 		vals:             vals,
 		evidenceToReport: make(map[string]types.Evidence),
 		latestHeight:     height,
 	}
-}
-
-// ChainID returns the blockchain ID.
-func (p *Mock) ChainID() string {
-	return p.chainID
 }
 
 func (p *Mock) String() string {
@@ -57,12 +53,19 @@ func (p *Mock) String() string {
 		fmt.Fprintf(&vals, " %X", v.Hash())
 	}
 
-	return fmt.Sprintf("Mock{headers: %s, vals: %v}", headers.String(), vals.String())
+	return fmt.Sprintf("Mock{id: %s, headers: %s, vals: %v}", p.id, headers.String(), vals.String())
 }
 
-func (p *Mock) LightBlock(_ context.Context, height int64) (*types.LightBlock, error) {
+func (p *Mock) LightBlock(ctx context.Context, height int64) (*types.LightBlock, error) {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-time.After(10 * time.Millisecond):
+	}
+
 	var lb *types.LightBlock
 
 	if height > p.latestHeight {

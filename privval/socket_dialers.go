@@ -7,7 +7,6 @@ import (
 
 	"github.com/number571/tendermint/crypto"
 	tmnet "github.com/number571/tendermint/libs/net"
-	p2pconn "github.com/number571/tendermint/p2p/conn"
 )
 
 // Socket errors.
@@ -28,7 +27,7 @@ func DialTCPFn(addr string, timeoutReadWrite time.Duration, privKey crypto.PrivK
 			err = conn.SetDeadline(deadline)
 		}
 		if err == nil {
-			conn, err = p2pconn.MakeSecretConnection(conn, privKey)
+			conn, err = MakeSecretConnection(conn, privKey)
 		}
 		return conn, err
 	}

@@ -2,6 +2,7 @@ package light_test
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/number571/tendermint/internal/test/factory"
 	"github.com/number571/tendermint/libs/log"
 	"github.com/number571/tendermint/light"
 	"github.com/number571/tendermint/light/provider"
@@ -56,7 +58,6 @@ var (
 		3: h3,
 	}
 	l1       = &types.LightBlock{SignedHeader: h1, ValidatorSet: vals}
-	l2       = &types.LightBlock{SignedHeader: h2, ValidatorSet: vals}
 	fullNode = mockp.New(
 		chainID,
 		headerSet,
@@ -120,7 +121,7 @@ func TestMock(t *testing.T) {
 func TestClient_SequentialVerification(t *testing.T) {
 	newKeys := genPrivKeys(4)
 	newVals := newKeys.ToValidators(10, 1)
-	differentVals, _ := types.RandValidatorSet(10, 100)
+	differentVals, _ := factory.RandValidatorSet(10, 100)
 
 	testCases := []struct {
 		name         string
@@ -231,7 +232,7 @@ func TestClient_SequentialVerification(t *testing.T) {
 					tc.otherHeaders,
 					tc.vals,
 				)},
-				dbs.New(dbm.NewMemDB(), chainID),
+				dbs.New(dbm.NewMemDB()),
 				light.SequentialVerification(),
 				light.Logger(log.TestingLogger()),
 			)
@@ -356,7 +357,7 @@ func TestClient_SkippingVerification(t *testing.T) {
 					tc.otherHeaders,
 					tc.vals,
 				)},
-				dbs.New(dbm.NewMemDB(), chainID),
+				dbs.New(dbm.NewMemDB()),
 				light.SkippingVerification(light.DefaultTrustLevel),
 				light.Logger(log.TestingLogger()),
 			)
@@ -394,7 +395,7 @@ func TestClientLargeBisectionVerification(t *testing.T) {
 		},
 		veryLargeFullNode,
 		[]provider.Provider{veryLargeFullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.SkippingVerification(light.DefaultTrustLevel),
 	)
 	require.NoError(t, err)
@@ -416,7 +417,7 @@ func TestClientBisectionBetweenTrustedHeaders(t *testing.T) {
 		},
 		fullNode,
 		[]provider.Provider{fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.SkippingVerification(light.DefaultTrustLevel),
 	)
 	require.NoError(t, err)
@@ -440,7 +441,7 @@ func TestClient_Cleanup(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 	)
 	require.NoError(t, err)
@@ -457,10 +458,10 @@ func TestClient_Cleanup(t *testing.T) {
 }
 
 // trustedHeader.Height == options.Height
-func TestClientRestoresTrustedHeaderAfterStartup1(t *testing.T) {
+func TestClientRestoresTrustedHeaderAfterStartup(t *testing.T) {
 	// 1. options.Hash == trustedHeader.Hash
 	{
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
+		trustedStore := dbs.New(dbm.NewMemDB())
 		err := trustedStore.SaveLightBlock(l1)
 		require.NoError(t, err)
 
@@ -484,7 +485,7 @@ func TestClientRestoresTrustedHeaderAfterStartup1(t *testing.T) {
 
 	// 2. options.Hash != trustedHeader.Hash
 	{
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
+		trustedStore := dbs.New(dbm.NewMemDB())
 		err := trustedStore.SaveLightBlock(l1)
 		require.NoError(t, err)
 
@@ -519,181 +520,10 @@ func TestClientRestoresTrustedHeaderAfterStartup1(t *testing.T) {
 		l, err := c.TrustedLightBlock(1)
 		assert.NoError(t, err)
 		if assert.NotNil(t, l) {
-			assert.Equal(t, l.Hash(), header1.Hash())
+			// client take the trusted store and ignores the trusted options
+			assert.Equal(t, l.Hash(), l1.Hash())
 			assert.NoError(t, l.ValidateBasic(chainID))
 		}
-	}
-}
-
-// trustedHeader.Height < options.Height
-func TestClientRestoresTrustedHeaderAfterStartup2(t *testing.T) {
-	// 1. options.Hash == trustedHeader.Hash
-	{
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
-		err := trustedStore.SaveLightBlock(l1)
-		require.NoError(t, err)
-
-		c, err := light.NewClient(
-			ctx,
-			chainID,
-			light.TrustOptions{
-				Period: 4 * time.Hour,
-				Height: 2,
-				Hash:   h2.Hash(),
-			},
-			fullNode,
-			[]provider.Provider{fullNode},
-			trustedStore,
-			light.Logger(log.TestingLogger()),
-		)
-		require.NoError(t, err)
-
-		// Check we still have the 1st header (+header+).
-		l, err := c.TrustedLightBlock(1)
-		assert.NoError(t, err)
-		assert.NotNil(t, l)
-		assert.Equal(t, l.Hash(), h1.Hash())
-		assert.NoError(t, l.ValidateBasic(chainID))
-	}
-
-	// 2. options.Hash != trustedHeader.Hash
-	// This could happen if previous provider was lying to us.
-	{
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
-		err := trustedStore.SaveLightBlock(l1)
-		require.NoError(t, err)
-
-		// header1 != header
-		diffHeader1 := keys.GenSignedHeader(chainID, 1, bTime.Add(1*time.Hour), nil, vals, vals,
-			hash("app_hash"), hash("cons_hash"), hash("results_hash"), 0, len(keys))
-
-		diffHeader2 := keys.GenSignedHeader(chainID, 2, bTime.Add(2*time.Hour), nil, vals, vals,
-			hash("app_hash"), hash("cons_hash"), hash("results_hash"), 0, len(keys))
-
-		primary := mockp.New(
-			chainID,
-			map[int64]*types.SignedHeader{
-				1: diffHeader1,
-				2: diffHeader2,
-			},
-			valSet,
-		)
-
-		c, err := light.NewClient(
-			ctx,
-			chainID,
-			light.TrustOptions{
-				Period: 4 * time.Hour,
-				Height: 2,
-				Hash:   diffHeader2.Hash(),
-			},
-			primary,
-			[]provider.Provider{primary},
-			trustedStore,
-			light.Logger(log.TestingLogger()),
-		)
-		require.NoError(t, err)
-
-		// Check we no longer have the invalid 1st header (+header+).
-		l, err := c.TrustedLightBlock(1)
-		assert.Error(t, err)
-		assert.Nil(t, l)
-	}
-}
-
-// trustedHeader.Height > options.Height
-func TestClientRestoresTrustedHeaderAfterStartup3(t *testing.T) {
-	// 1. options.Hash == trustedHeader.Hash
-	{
-		// load the first three headers into the trusted store
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
-		err := trustedStore.SaveLightBlock(l1)
-		require.NoError(t, err)
-
-		err = trustedStore.SaveLightBlock(l2)
-		require.NoError(t, err)
-
-		c, err := light.NewClient(
-			ctx,
-			chainID,
-			trustOptions,
-			fullNode,
-			[]provider.Provider{fullNode},
-			trustedStore,
-			light.Logger(log.TestingLogger()),
-		)
-		require.NoError(t, err)
-
-		// Check we still have the 1st light block.
-		l, err := c.TrustedLightBlock(1)
-		assert.NoError(t, err)
-		assert.NotNil(t, l)
-		assert.Equal(t, l.Hash(), h1.Hash())
-		assert.NoError(t, l.ValidateBasic(chainID))
-
-		// Check we no longer have 2nd light block.
-		l, err = c.TrustedLightBlock(2)
-		assert.Error(t, err)
-		assert.Nil(t, l)
-
-		l, err = c.TrustedLightBlock(3)
-		assert.Error(t, err)
-		assert.Nil(t, l)
-	}
-
-	// 2. options.Hash != trustedHeader.Hash
-	// This could happen if previous provider was lying to us.
-	{
-		trustedStore := dbs.New(dbm.NewMemDB(), chainID)
-		err := trustedStore.SaveLightBlock(l1)
-		require.NoError(t, err)
-
-		// header1 != header
-		header1 := keys.GenSignedHeader(chainID, 1, bTime.Add(1*time.Hour), nil, vals, vals,
-			hash("app_hash"), hash("cons_hash"), hash("results_hash"), 0, len(keys))
-
-		header2 := keys.GenSignedHeader(chainID, 2, bTime.Add(2*time.Hour), nil, vals, vals,
-			hash("app_hash"), hash("cons_hash"), hash("results_hash"), 0, len(keys))
-		err = trustedStore.SaveLightBlock(&types.LightBlock{
-			SignedHeader: header2,
-			ValidatorSet: vals,
-		})
-		require.NoError(t, err)
-
-		primary := mockp.New(
-			chainID,
-			map[int64]*types.SignedHeader{
-				1: header1,
-			},
-			valSet,
-		)
-
-		c, err := light.NewClient(
-			ctx,
-			chainID,
-			light.TrustOptions{
-				Period: 4 * time.Hour,
-				Height: 1,
-				Hash:   header1.Hash(),
-			},
-			primary,
-			[]provider.Provider{primary},
-			trustedStore,
-			light.Logger(log.TestingLogger()),
-		)
-		require.NoError(t, err)
-
-		// Check we have swapped invalid 1st light block (+lightblock+) with correct one (+lightblock2+).
-		l, err := c.TrustedLightBlock(1)
-		assert.NoError(t, err)
-		assert.NotNil(t, l)
-		assert.Equal(t, l.Hash(), header1.Hash())
-		assert.NoError(t, l.ValidateBasic(chainID))
-
-		// Check we no longer have invalid 2nd light block (+lightblock2+).
-		l, err = c.TrustedLightBlock(2)
-		assert.Error(t, err)
-		assert.Nil(t, l)
 	}
 }
 
@@ -704,7 +534,7 @@ func TestClient_Update(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 	)
 	require.NoError(t, err)
@@ -725,7 +555,7 @@ func TestClient_Concurrency(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 	)
 	require.NoError(t, err)
@@ -740,7 +570,7 @@ func TestClient_Concurrency(t *testing.T) {
 			defer wg.Done()
 
 			// NOTE: Cleanup, Stop, VerifyLightBlockAtHeight and Verify are not supposed
-			// to be concurrenly safe.
+			// to be concurrently safe.
 
 			assert.Equal(t, chainID, c.ChainID())
 
@@ -759,6 +589,36 @@ func TestClient_Concurrency(t *testing.T) {
 	wg.Wait()
 }
 
+func TestClient_AddProviders(t *testing.T) {
+	c, err := light.NewClient(
+		ctx,
+		chainID,
+		trustOptions,
+		fullNode,
+		[]provider.Provider{fullNode},
+		dbs.New(dbm.NewMemDB()),
+		light.Logger(log.TestingLogger()),
+	)
+	require.NoError(t, err)
+
+	closeCh := make(chan struct{})
+	go func() {
+		// run verification concurrently to make sure it doesn't dead lock
+		_, err = c.VerifyLightBlockAtHeight(ctx, 2, bTime.Add(2*time.Hour))
+		require.NoError(t, err)
+		close(closeCh)
+	}()
+
+	// NOTE: the light client doesn't check uniqueness of providers
+	c.AddProvider(fullNode)
+	require.Len(t, c.Witnesses(), 2)
+	select {
+	case <-closeCh:
+	case <-time.After(5 * time.Second):
+		t.Fatal("concurent light block verification failed to finish in 5s")
+	}
+}
+
 func TestClientReplacesPrimaryWithWitnessIfPrimaryIsUnavailable(t *testing.T) {
 	c, err := light.NewClient(
 		ctx,
@@ -766,17 +626,20 @@ func TestClientReplacesPrimaryWithWitnessIfPrimaryIsUnavailable(t *testing.T) {
 		trustOptions,
 		deadNode,
 		[]provider.Provider{fullNode, fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 
 	require.NoError(t, err)
 	_, err = c.Update(ctx, bTime.Add(2*time.Hour))
 	require.NoError(t, err)
 
+	// the primary should no longer be the deadNode
 	assert.NotEqual(t, c.Primary(), deadNode)
-	assert.Equal(t, 1, len(c.Witnesses()))
+
+	// we should still have the dead node as a witness because it
+	// hasn't repeatedly been unresponsive yet
+	assert.Equal(t, 2, len(c.Witnesses()))
 }
 
 func TestClient_BackwardsVerification(t *testing.T) {
@@ -792,7 +655,7 @@ func TestClient_BackwardsVerification(t *testing.T) {
 			},
 			largeFullNode,
 			[]provider.Provider{largeFullNode},
-			dbs.New(dbm.NewMemDB(), chainID),
+			dbs.New(dbm.NewMemDB()),
 			light.Logger(log.TestingLogger()),
 		)
 		require.NoError(t, err)
@@ -874,7 +737,7 @@ func TestClient_BackwardsVerification(t *testing.T) {
 				},
 				tc.provider,
 				[]provider.Provider{tc.provider},
-				dbs.New(dbm.NewMemDB(), chainID),
+				dbs.New(dbm.NewMemDB()),
 				light.Logger(log.TestingLogger()),
 			)
 			require.NoError(t, err, idx)
@@ -887,7 +750,7 @@ func TestClient_BackwardsVerification(t *testing.T) {
 
 func TestClient_NewClientFromTrustedStore(t *testing.T) {
 	// 1) Initiate DB and fill with a "trusted" header
-	db := dbs.New(dbm.NewMemDB(), chainID)
+	db := dbs.New(dbm.NewMemDB())
 	err := db.SaveLightBlock(l1)
 	require.NoError(t, err)
 
@@ -944,9 +807,8 @@ func TestClientRemovesWitnessIfItSendsUsIncorrectHeader(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{badProvider1, badProvider2},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 	// witness should have behaved properly -> no error
 	require.NoError(t, err)
@@ -969,7 +831,7 @@ func TestClientRemovesWitnessIfItSendsUsIncorrectHeader(t *testing.T) {
 }
 
 func TestClient_TrustedValidatorSet(t *testing.T) {
-	differentVals, _ := types.RandValidatorSet(10, 100)
+	differentVals, _ := factory.RandValidatorSet(10, 100)
 	badValSetNode := mockp.New(
 		chainID,
 		map[int64]*types.SignedHeader{
@@ -994,7 +856,7 @@ func TestClient_TrustedValidatorSet(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{badValSetNode, fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 	)
 	require.NoError(t, err)
@@ -1012,7 +874,7 @@ func TestClientPrunesHeadersAndValidatorSets(t *testing.T) {
 		trustOptions,
 		fullNode,
 		[]provider.Provider{fullNode},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 		light.PruningSize(1),
 	)
@@ -1085,8 +947,7 @@ func TestClientEnsureValidHeadersAndValSets(t *testing.T) {
 			trustOptions,
 			badNode,
 			[]provider.Provider{badNode, badNode},
-			dbs.New(dbm.NewMemDB(), chainID),
-			light.MaxRetryAttempts(1),
+			dbs.New(dbm.NewMemDB()),
 		)
 		require.NoError(t, err)
 
@@ -1097,5 +958,63 @@ func TestClientEnsureValidHeadersAndValSets(t *testing.T) {
 			assert.NoError(t, err)
 		}
 	}
+
+}
+
+func TestClientHandlesContexts(t *testing.T) {
+	p := mockp.New(genMockNode(chainID, 100, 10, 1, bTime))
+	genBlock, err := p.LightBlock(ctx, 1)
+	require.NoError(t, err)
+
+	// instantiate the light client with a timeout
+	ctxTimeOut, cancel := context.WithTimeout(ctx, 10*time.Millisecond)
+	defer cancel()
+	_, err = light.NewClient(
+		ctxTimeOut,
+		chainID,
+		light.TrustOptions{
+			Period: 24 * time.Hour,
+			Height: 1,
+			Hash:   genBlock.Hash(),
+		},
+		p,
+		[]provider.Provider{p, p},
+		dbs.New(dbm.NewMemDB()),
+	)
+	require.Error(t, ctxTimeOut.Err())
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
+
+	// instantiate the client for real
+	c, err := light.NewClient(
+		ctx,
+		chainID,
+		light.TrustOptions{
+			Period: 24 * time.Hour,
+			Height: 1,
+			Hash:   genBlock.Hash(),
+		},
+		p,
+		[]provider.Provider{p, p},
+		dbs.New(dbm.NewMemDB()),
+	)
+	require.NoError(t, err)
+
+	// verify a block with a timeout
+	ctxTimeOutBlock, cancel := context.WithTimeout(ctx, 10*time.Millisecond)
+	defer cancel()
+	_, err = c.VerifyLightBlockAtHeight(ctxTimeOutBlock, 100, bTime.Add(100*time.Minute))
+	require.Error(t, ctxTimeOutBlock.Err())
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
+
+	// verify a block with a cancel
+	ctxCancel, cancel := context.WithCancel(ctx)
+	defer cancel()
+	time.AfterFunc(10*time.Millisecond, cancel)
+	_, err = c.VerifyLightBlockAtHeight(ctxCancel, 100, bTime.Add(100*time.Minute))
+	require.Error(t, ctxCancel.Err())
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.Canceled))
 
 }

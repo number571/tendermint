@@ -3,7 +3,7 @@
 package gost256
 
 import (
-	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
+	gkeys "bitbucket.org/number571/go-cryptopro/gost_r_34_10_2012"
 )
 
 func (privKey PrivKey) Sign(msg []byte) ([]byte, error) {

@@ -3,7 +3,7 @@ package types
 import (
 	fmt "fmt"
 
-	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
+	gkeys "bitbucket.org/number571/go-cryptopro/gost_r_34_10_2012"
 	cryptoenc "github.com/number571/tendermint/crypto/encoding"
 	"github.com/number571/tendermint/crypto/gost256"
 	"github.com/number571/tendermint/crypto/gost512"

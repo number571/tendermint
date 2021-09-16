@@ -114,7 +114,7 @@ static int create_scripts(void) {
             in[k++] = j;
         }
 
-        snprintf(buffer, BUFFSIZE, "%s start --home %s%d --proxy_app=kvstore --p2p.persistent_peers=\"",
+        snprintf(buffer, BUFFSIZE, "%s start --home %s%d --proxy-app=kvstore --p2p.persistent-peers=\"",
             TENDERMINT, NODEPATH(i));
         for (int j = 0; j < LEN(nodesid)-1; ++j) {
             snprintf(locbuff, LOCBSIZE*2, "%s@127.0.0.1:26%d56,", nodesid[in[j]], in[j]);

@@ -54,9 +54,8 @@ func TestLightClientAttackEvidence_Lunatic(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{witness},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 	require.NoError(t, err)
 
@@ -136,9 +135,8 @@ func TestLightClientAttackEvidence_Equivocation(t *testing.T) {
 			},
 			primary,
 			[]provider.Provider{witness},
-			dbs.New(dbm.NewMemDB(), chainID),
+			dbs.New(dbm.NewMemDB()),
 			light.Logger(log.TestingLogger()),
-			light.MaxRetryAttempts(1),
 			verificationOption,
 		)
 		require.NoError(t, err)
@@ -210,7 +208,7 @@ func TestLightClientAttackEvidence_ForwardLunatic(t *testing.T) {
 	witness := mockp.New(chainID, witnessHeaders, witnessValidators)
 	primary := mockp.New(chainID, primaryHeaders, primaryValidators)
 
-	laggingWitness := witness.Copy(chainID)
+	laggingWitness := witness.Copy("laggingWitness")
 
 	// In order to perform the attack, the primary needs at least one accomplice as a witness to also
 	// send the forged block
@@ -226,7 +224,7 @@ func TestLightClientAttackEvidence_ForwardLunatic(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{witness, accomplice},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 		light.MaxClockDrift(1*time.Second),
 		light.MaxBlockLag(1*time.Second),
@@ -293,7 +291,7 @@ func TestLightClientAttackEvidence_ForwardLunatic(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{laggingWitness, accomplice},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 		light.MaxClockDrift(1*time.Second),
 		light.MaxBlockLag(1*time.Second),
@@ -324,9 +322,8 @@ func TestClientDivergentTraces1(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{witness},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "does not match primary")
@@ -348,9 +345,8 @@ func TestClientDivergentTraces2(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{deadNode, deadNode, primary},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 	require.NoError(t, err)
 
@@ -383,9 +379,8 @@ func TestClientDivergentTraces3(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{witness},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
-		light.MaxRetryAttempts(1),
 	)
 	require.NoError(t, err)
 
@@ -404,7 +399,7 @@ func TestClientDivergentTraces4(t *testing.T) {
 	require.NoError(t, err)
 
 	_, mockHeaders, mockVals := genMockNode(chainID, 10, 5, 2, bTime)
-	witness := primary.Copy(chainID)
+	witness := primary.Copy("witness")
 	witness.AddLightBlock(&types.LightBlock{
 		SignedHeader: mockHeaders[10],
 		ValidatorSet: mockVals[10],
@@ -420,7 +415,7 @@ func TestClientDivergentTraces4(t *testing.T) {
 		},
 		primary,
 		[]provider.Provider{witness},
-		dbs.New(dbm.NewMemDB(), chainID),
+		dbs.New(dbm.NewMemDB()),
 		light.Logger(log.TestingLogger()),
 	)
 	require.NoError(t, err)

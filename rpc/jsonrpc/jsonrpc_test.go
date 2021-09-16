@@ -6,20 +6,18 @@ import (
 	crand "crypto/rand"
 	"encoding/json"
 	"fmt"
+	mrand "math/rand"
 	"net/http"
 	"os"
 	"os/exec"
 	"testing"
 	"time"
 
-	"github.com/go-kit/kit/log/term"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	tmbytes "github.com/number571/tendermint/libs/bytes"
 	"github.com/number571/tendermint/libs/log"
-	tmrand "github.com/number571/tendermint/libs/rand"
-
 	client "github.com/number571/tendermint/rpc/jsonrpc/client"
 	server "github.com/number571/tendermint/rpc/jsonrpc/server"
 	types "github.com/number571/tendermint/rpc/jsonrpc/types"
@@ -59,11 +57,11 @@ type ResultEchoDataBytes struct {
 
 // Define some routes
 var Routes = map[string]*server.RPCFunc{
-	"echo":            server.NewRPCFunc(EchoResult, "arg"),
+	"echo":            server.NewRPCFunc(EchoResult, "arg", false),
 	"echo_ws":         server.NewWSRPCFunc(EchoWSResult, "arg"),
-	"echo_bytes":      server.NewRPCFunc(EchoBytesResult, "arg"),
-	"echo_data_bytes": server.NewRPCFunc(EchoDataBytesResult, "arg"),
-	"echo_int":        server.NewRPCFunc(EchoIntResult, "arg"),
+	"echo_bytes":      server.NewRPCFunc(EchoBytesResult, "arg", false),
+	"echo_data_bytes": server.NewRPCFunc(EchoDataBytesResult, "arg", false),
+	"echo_int":        server.NewRPCFunc(EchoIntResult, "arg", false),
 }
 
 func EchoResult(ctx *types.Context, v string) (*ResultEcho, error) {
@@ -92,22 +90,9 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-var colorFn = func(keyvals ...interface{}) term.FgBgColor {
-	for i := 0; i < len(keyvals)-1; i += 2 {
-		if keyvals[i] == "socket" {
-			if keyvals[i+1] == "tcp" {
-				return term.FgBgColor{Fg: term.DarkBlue}
-			} else if keyvals[i+1] == "unix" {
-				return term.FgBgColor{Fg: term.DarkCyan}
-			}
-		}
-	}
-	return term.FgBgColor{}
-}
-
 // launch unix and tcp servers
 func setup() {
-	logger := log.NewTMLoggerWithColorFn(log.NewSyncWriter(os.Stdout), colorFn)
+	logger := log.MustNewDefaultLogger(log.LogFormatPlain, log.LogLevelInfo, false)
 
 	cmd := exec.Command("rm", "-f", unixSocket)
 	err := cmd.Start()
@@ -215,7 +200,7 @@ func testWithHTTPClient(t *testing.T, cl client.HTTPClient) {
 	require.Nil(t, err)
 	assert.Equal(t, got3, val3)
 
-	val4 := tmrand.Intn(10000)
+	val4 := mrand.Intn(10000)
 	got4, err := echoIntViaHTTP(cl, val4)
 	require.Nil(t, err)
 	assert.Equal(t, got4, val4)
@@ -400,7 +385,7 @@ func TestWSClientPingPong(t *testing.T) {
 }
 
 func randBytes(t *testing.T) []byte {
-	n := tmrand.Intn(10) + 2
+	n := mrand.Intn(10) + 2
 	buf := make([]byte, n)
 	_, err := crand.Read(buf)
 	require.Nil(t, err)

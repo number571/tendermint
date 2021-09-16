@@ -7,11 +7,11 @@ import (
 	"io"
 
 	"github.com/number571/tendermint/crypto/merkle"
+	tmsync "github.com/number571/tendermint/internal/libs/sync"
 	"github.com/number571/tendermint/libs/bits"
 	tmbytes "github.com/number571/tendermint/libs/bytes"
 	tmjson "github.com/number571/tendermint/libs/json"
 	tmmath "github.com/number571/tendermint/libs/math"
-	tmsync "github.com/number571/tendermint/libs/sync"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 )
 

@@ -16,7 +16,7 @@ func Perturb(testnet *e2e.Testnet) error {
 			if err != nil {
 				return err
 			}
-			time.Sleep(3 * time.Second) // give network some time to recover between each
+			time.Sleep(20 * time.Second) // give network some time to recover between each
 		}
 	}
 	return nil
@@ -42,6 +42,7 @@ func PerturbNode(node *e2e.Node, perturbation e2e.Perturbation) (*rpctypes.Resul
 		if err := execCompose(testnet.Dir, "kill", "-s", "SIGKILL", node.Name); err != nil {
 			return nil, err
 		}
+		time.Sleep(10 * time.Second)
 		if err := execCompose(testnet.Dir, "start", node.Name); err != nil {
 			return nil, err
 		}
@@ -66,7 +67,13 @@ func PerturbNode(node *e2e.Node, perturbation e2e.Perturbation) (*rpctypes.Resul
 		return nil, fmt.Errorf("unexpected perturbation %q", perturbation)
 	}
 
-	status, err := waitForNode(node, 0, 20*time.Second)
+	// Seed nodes do not have an RPC endpoint exposed so we cannot assert that
+	// the node recovered. All we can do is hope.
+	if node.Mode == e2e.ModeSeed {
+		return nil, nil
+	}
+
+	status, err := waitForNode(node, 0, 3*time.Minute)
 	if err != nil {
 		return nil, err
 	}

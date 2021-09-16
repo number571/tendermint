@@ -1,7 +1,7 @@
 # We need to build in a Linux environment to support C libraries, e.g. RocksDB.
 # We use Debian instead of Alpine, so that we can use binary database packages
 # instead of spending time compiling them.
-FROM golang:1.15
+FROM golang:1.16
 
 RUN apt-get -qq update -y && apt-get -qq upgrade -y >/dev/null
 RUN apt-get -qq install -y libleveldb-dev librocksdb-dev >/dev/null
@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 RUN make build && cp build/tendermint /usr/bin/tendermint
 COPY test/e2e/docker/entrypoint* /usr/bin/
-RUN cd test/e2e && make maverick && cp build/maverick /usr/bin/maverick
+
 RUN cd test/e2e && make app && cp build/app /usr/bin/app
 
 # Set up runtime directory. We don't use a separate runtime image since we need
@@ -29,5 +29,5 @@ ENV TMHOME=/tendermint
 
 EXPOSE 26656 26657 26660 6060
 ENTRYPOINT ["/usr/bin/entrypoint"]
-CMD ["node"]
+CMD ["start"]
 STOPSIGNAL SIGTERM

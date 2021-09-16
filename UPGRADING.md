@@ -2,13 +2,91 @@
 
 This guide provides instructions for upgrading to specific versions of Tendermint Core.
 
+## Unreleased
+
+### ABCI Changes
+
+* Added `AbciVersion` to `RequestInfo`. Applications should check that the ABCI version they expect is being used in order to avoid unimplemented changes errors.
+* The method `SetOption` has been removed from the ABCI.Client interface. This feature was used in the early ABCI implementation's.
+* Messages are written to a byte stream using uin64 length delimiters instead of int64.
+* When mempool `v1` is enabled, transactions broadcasted via `sync` mode may return a successful
+  response with a transaction hash indicating that the transaction was successfully inserted into
+  the mempool. While this is true for `v0`, the `v1` mempool reactor may at a later point in time
+  evict or even drop this transaction after a hash has been returned. Thus, the user or client must
+  query for that transaction to check if it is still in the mempool.
+
+### Config Changes
+
+* `fast_sync = "v1"` is no longer supported. Please use `v2` instead.
+
+* All config parameters are now hyphen-case (also known as kebab-case) instead of snake_case. Before restarting the node make sure
+  you have updated all the variables in your `config.toml` file.
+
+* Added `--mode` flag and `mode` config variable on `config.toml` for setting Mode of the Node: `full` | `validator` | `seed` (default: `full`)
+  [ADR-52](https://github.com/number571/tendermint/blob/master/docs/architecture/adr-052-tendermint-mode.md)
+  
+* `BootstrapPeers` has been added as part of the new p2p stack. This will eventually replace
+  `Seeds`. Bootstrap peers are connected with on startup if needed for peer discovery. Unlike
+  persistent peers, there's no gaurantee that the node will remain connected with these peers. 
+
+- configuration values starting with `priv-validator-` have moved to the new
+  `priv-validator` section, without the `priv-validator-` prefix.
+
+* Fast Sync v2 has been deprecated, please use v0 to sync a node.
+
+### CLI Changes
+
+* You must now specify the node mode (validator|full|seed) in `tendermint init [mode]`
+
+* If you had previously used `tendermint gen_node_key` to generate a new node
+  key, keep in mind that it no longer saves the output to a file. You can use
+  `tendermint init validator` or pipe the output of `tendermint gen_node_key` to
+  `$TMHOME/config/node_key.json`:
+
+  ```
+  $ tendermint gen_node_key > $TMHOME/config/node_key.json
+  ```
+
+* CLI commands and flags are all now hyphen-case instead of snake_case.
+  Make sure to adjust any scripts that calls a cli command with snake_casing
+
+### API Changes
+
+The p2p layer was reimplemented as part of the 0.35 release cycle, and
+all reactors were refactored. As part of that work these
+implementations moved into the `internal` package and are no longer
+considered part of the public Go API of tendermint. These packages
+are:
+
+- `p2p`
+- `mempool`
+- `consensus`
+- `statesync`
+- `blockchain`
+- `evidence`
+
+Accordingly, the space `node` package was changed to reduce access to
+tendermint internals: applications that use tendermint as a library
+will need to change to accommodate these changes. Most notably:
+
+- The `Node` type has become internal, and all constructors return a
+  `service.Service` implementation.
+
+- The `node.DefaultNewNode` and `node.NewNode` constructors are no
+  longer exported and have been replaced with `node.New` and
+  `node.NewDefault` which provide more functional interfaces.
+
+### RPC changes
+
+Mark gRPC in the RPC layer as deprecated and to be removed in 0.36.
+
 ## v0.34.0
 
 **Upgrading to Tendermint 0.34 requires a blockchain restart.**
 This release is not compatible with previous blockchains due to changes to
 the encoding format (see "Protocol Buffers," below) and the block header (see "Blockchain Protocol").
 
-Note also that Tendermint 0.34 also requires Go 1.15 or higher. 
+Note also that Tendermint 0.34 also requires Go 1.16 or higher.
 
 ### ABCI Changes
 
@@ -42,6 +120,8 @@ Note also that Tendermint 0.34 also requires Go 1.15 or higher.
 * The field `Proof`, on the ABCI type `ResponseQuery`, is now named `ProofOps`.
   For more, see "Crypto," below.
 
+* The method `SetOption` has been removed from the ABCI.Client interface. This feature was used in the early ABCI implementation's.
+
 ### P2P Protocol
 
 The default codec is now proto3, not amino. The schema files can be found in the `/proto`
@@ -49,12 +129,9 @@ directory. For more, see "Protobuf," below.
 
 ### Blockchain Protocol
 
-* `Header#LastResultsHash` previously was the root hash of a Merkle tree built from `ResponseDeliverTx(Code, Data)` responses.
-  As of 0.34,`Header#LastResultsHash` is now the root hash of a Merkle tree built from:
-    * `BeginBlock#Events`
-    * Root hash of a Merkle tree built from `ResponseDeliverTx(Code, Data,
-      GasWanted, GasUsed, Events)` responses
-    * `BeginBlock#Events`
+* `Header#LastResultsHash`, which is the root hash of a Merkle tree built from
+`ResponseDeliverTx(Code, Data)` as of v0.34 also includes `GasWanted` and `GasUsed`
+fields.
 
 * Merkle hashes of empty trees previously returned nothing, but now return the hash of an empty input,
   to conform with [RFC-6962](https://tools.ietf.org/html/rfc6962).
@@ -112,7 +189,7 @@ Tendermint 0.34 includes new and updated consensus parameters.
 
 #### Evidence Parameters
 
-* `MaxBytes`, which caps the total amount of evidence. The default is 1048576 (1 MB). 
+* `MaxBytes`, which caps the total amount of evidence. The default is 1048576 (1 MB).
 
 ### Crypto
 
@@ -158,6 +235,7 @@ Other user-relevant changes include:
 * The `Verifier` was broken up into two pieces:
     * Core verification logic (pure `VerifyX` functions)
     * `Client` object, which represents the complete light client
+* The new light clients stores headers & validator sets as `LightBlock`s
 * The RPC client can be found in the `/rpc` directory.
 * The HTTP(S) proxy is located in the `/proxy` directory.
 
@@ -188,7 +266,7 @@ blockchains, we recommend that you check the chain ID.
 
 ### Version
 
-Version is now set through Go linker flags `ld_flags`. Applications that are using tendermint as a library should set this at compile time. 
+Version is now set through Go linker flags `ld_flags`. Applications that are using tendermint as a library should set this at compile time.
 
 Example:
 
@@ -196,7 +274,7 @@ Example:
 go install -mod=readonly -ldflags "-X github.com/number571/tendermint/version.TMCoreSemVer=$(go list -m github.com/number571/tendermint | sed  's/ /\@/g') -s -w " -trimpath ./cmd
 ```
 
-Additionally, the exported constant `version.Version` is now `version.TMCoreSemVer`. 
+Additionally, the exported constant `version.Version` is now `version.TMCoreSemVer`.
 
 ## v0.33.4
 
@@ -440,7 +518,7 @@ In this case, the WS client will receive an error with description:
   "error": {
     "code": -32000,
     "msg": "Server error",
-    "data": "subscription was cancelled (reason: client is not pulling messages fast enough)" // or "subscription was cancelled (reason: Tendermint exited)"
+    "data": "subscription was canceled (reason: client is not pulling messages fast enough)" // or "subscription was canceled (reason: Tendermint exited)"
   }
 }
 

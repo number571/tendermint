@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strconv"
 
@@ -39,7 +38,7 @@ func NewApplication(cfg *Config) (*Application, error) {
 		return nil, err
 	}
 	return &Application{
-		logger:    log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger:    log.MustNewDefaultLogger(log.LogFormatPlain, log.LogLevelInfo, false),
 		state:     state,
 		snapshots: snapshots,
 		cfg:       cfg,
@@ -111,12 +110,12 @@ func (app *Application) EndBlock(req abci.RequestEndBlock) abci.ResponseEndBlock
 				Type: "val_updates",
 				Attributes: []abci.EventAttribute{
 					{
-						Key:   []byte("size"),
-						Value: []byte(strconv.Itoa(valUpdates.Len())),
+						Key:   "size",
+						Value: strconv.Itoa(valUpdates.Len()),
 					},
 					{
-						Key:   []byte("height"),
-						Value: []byte(strconv.Itoa(int(req.Height))),
+						Key:   "height",
+						Value: strconv.Itoa(int(req.Height)),
 					},
 				},
 			},
@@ -135,7 +134,7 @@ func (app *Application) Commit() abci.ResponseCommit {
 		if err != nil {
 			panic(err)
 		}
-		app.logger.Info("Created state sync snapshot", "height", snapshot.Height)
+		logger.Info("Created state sync snapshot", "height", snapshot.Height)
 	}
 	retainHeight := int64(0)
 	if app.cfg.RetainBlocks > 0 {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	tmsync "github.com/number571/tendermint/libs/sync"
+	tmsync "github.com/number571/tendermint/internal/libs/sync"
 )
 
 var (

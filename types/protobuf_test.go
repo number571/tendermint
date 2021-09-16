@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	abci "github.com/number571/tendermint/abci/types"
-	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
-	cryptoenc "github.com/number571/tendermint/crypto/encoding"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	cryptoenc "github.com/tendermint/tendermint/crypto/encoding"
 )
 
 func TestABCIPubKey(t *testing.T) {

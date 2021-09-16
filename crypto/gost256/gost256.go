@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/tmhash"
-	tmjson "github.com/number571/tendermint/libs/json"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
 )

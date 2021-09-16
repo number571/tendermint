@@ -6,8 +6,8 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
-	bcproto "github.com/number571/tendermint/proto/tendermint/blockchain"
-	"github.com/number571/tendermint/types"
+	bcproto "github.com/tendermint/tendermint/proto/tendermint/blockchain"
+	"github.com/tendermint/tendermint/types"
 )
 
 const (

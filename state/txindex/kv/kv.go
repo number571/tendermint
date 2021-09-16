@@ -11,11 +11,11 @@ import (
 	"github.com/gogo/protobuf/proto"
 	dbm "github.com/tendermint/tm-db"
 
-	abci "github.com/number571/tendermint/abci/types"
-	"github.com/number571/tendermint/libs/pubsub/query"
-	"github.com/number571/tendermint/state/indexer"
-	"github.com/number571/tendermint/state/txindex"
-	"github.com/number571/tendermint/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/pubsub/query"
+	"github.com/tendermint/tendermint/state/indexer"
+	"github.com/tendermint/tendermint/state/txindex"
+	"github.com/tendermint/tendermint/types"
 )
 
 const (

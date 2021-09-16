@@ -3,7 +3,7 @@ package benchmarking
 import (
 	"testing"
 
-	"github.com/number571/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 // The code in this file is adapted from agl/ed25519.

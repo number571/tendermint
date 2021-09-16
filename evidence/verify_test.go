@@ -10,17 +10,17 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/tmhash"
-	"github.com/number571/tendermint/evidence"
-	"github.com/number571/tendermint/evidence/mocks"
-	"github.com/number571/tendermint/libs/log"
-	tmproto "github.com/number571/tendermint/proto/tendermint/types"
-	tmversion "github.com/number571/tendermint/proto/tendermint/version"
-	sm "github.com/number571/tendermint/state"
-	smmocks "github.com/number571/tendermint/state/mocks"
-	"github.com/number571/tendermint/types"
-	"github.com/number571/tendermint/version"
+	"github.com/tendermint/tendermint/crypto"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/tendermint/tendermint/evidence"
+	"github.com/tendermint/tendermint/evidence/mocks"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	sm "github.com/tendermint/tendermint/state"
+	smmocks "github.com/tendermint/tendermint/state/mocks"
+	"github.com/tendermint/tendermint/types"
+	"github.com/tendermint/tendermint/version"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/number571/tendermint/types"
+	"github.com/tendermint/tendermint/types"
 )
 
 // Waiter is informed of current height, decided whether to quit early

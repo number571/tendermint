@@ -1,6 +1,6 @@
 package store
 
-import "github.com/number571/tendermint/types"
+import "github.com/tendermint/tendermint/types"
 
 // Store is anything that can persistently store headers.
 type Store interface {

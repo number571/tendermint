@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/number571/tendermint/libs/log"
-	e2e "github.com/number571/tendermint/test/e2e/pkg"
+	"github.com/tendermint/tendermint/libs/log"
+	e2e "github.com/tendermint/tendermint/test/e2e/pkg"
 )
 
 var (

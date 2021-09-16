@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/number571/tendermint/crypto/ed25519"
-	"github.com/number571/tendermint/libs/log"
-	tmnet "github.com/number571/tendermint/libs/net"
-	tmrand "github.com/number571/tendermint/libs/rand"
-	"github.com/number571/tendermint/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/libs/log"
+	tmnet "github.com/tendermint/tendermint/libs/net"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/types"
 )
 
 var (

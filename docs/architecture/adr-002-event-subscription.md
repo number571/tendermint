@@ -65,9 +65,9 @@ For historic queries we will need a indexing storage (Postgres, SQLite, ...).
 
 ### Issues
 
-- https://github.com/number571/tendermint/issues/376
-- https://github.com/number571/tendermint/issues/287
-- https://github.com/number571/tendermint/issues/525 (related)
+- https://github.com/tendermint/tendermint/issues/376
+- https://github.com/tendermint/tendermint/issues/287
+- https://github.com/tendermint/tendermint/issues/525 (related)
 
 ## Status
 

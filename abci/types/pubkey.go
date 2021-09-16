@@ -4,9 +4,9 @@ import (
 	fmt "fmt"
 
 	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
-	cryptoenc "github.com/number571/tendermint/crypto/encoding"
-	"github.com/number571/tendermint/crypto/gost256"
-	"github.com/number571/tendermint/crypto/gost512"
+	cryptoenc "github.com/tendermint/tendermint/crypto/encoding"
+	"github.com/tendermint/tendermint/crypto/gost256"
+	"github.com/tendermint/tendermint/crypto/gost512"
 )
 
 func Gost512ValidatorUpdate(pk []byte, power int64) ValidatorUpdate {

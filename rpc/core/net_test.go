@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	cfg "github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/libs/log"
-	"github.com/number571/tendermint/p2p"
-	rpctypes "github.com/number571/tendermint/rpc/jsonrpc/types"
+	cfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/log"
+	"github.com/tendermint/tendermint/p2p"
+	rpctypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
 )
 
 func TestUnsafeDialSeeds(t *testing.T) {

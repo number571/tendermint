@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	cfg "github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/libs/bytes"
-	tmrand "github.com/number571/tendermint/libs/rand"
-	"github.com/number571/tendermint/p2p"
-	"github.com/number571/tendermint/privval"
-	"github.com/number571/tendermint/types"
-	tmtime "github.com/number571/tendermint/types/time"
+	cfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/bytes"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/privval"
+	"github.com/tendermint/tendermint/types"
+	tmtime "github.com/tendermint/tendermint/types/time"
 )
 
 var (

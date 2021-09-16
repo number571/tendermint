@@ -50,4 +50,4 @@ Proposed
 
 ## References
 
-- Issue [#4059](https://github.com/number571/tendermint/issues/4059) : double-signing protection
+- Issue [#4059](https://github.com/tendermint/tendermint/issues/4059) : double-signing protection

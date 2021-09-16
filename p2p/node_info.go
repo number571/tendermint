@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"reflect"
 
-	tmbytes "github.com/number571/tendermint/libs/bytes"
-	tmstrings "github.com/number571/tendermint/libs/strings"
-	tmp2p "github.com/number571/tendermint/proto/tendermint/p2p"
-	"github.com/number571/tendermint/version"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	tmstrings "github.com/tendermint/tendermint/libs/strings"
+	tmp2p "github.com/tendermint/tendermint/proto/tendermint/p2p"
+	"github.com/tendermint/tendermint/version"
 )
 
 const (

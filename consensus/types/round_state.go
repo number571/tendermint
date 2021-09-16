@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/number571/tendermint/libs/bytes"
-	"github.com/number571/tendermint/types"
+	"github.com/tendermint/tendermint/libs/bytes"
+	"github.com/tendermint/tendermint/types"
 )
 
 //-----------------------------------------------------------------------------

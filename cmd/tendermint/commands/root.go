@@ -8,10 +8,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	cfg "github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/libs/cli"
-	tmflags "github.com/number571/tendermint/libs/cli/flags"
-	"github.com/number571/tendermint/libs/log"
+	cfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/cli"
+	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 var (

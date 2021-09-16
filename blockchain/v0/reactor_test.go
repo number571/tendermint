@@ -12,16 +12,16 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
-	abci "github.com/number571/tendermint/abci/types"
-	cfg "github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/libs/log"
-	"github.com/number571/tendermint/mempool/mock"
-	"github.com/number571/tendermint/p2p"
-	"github.com/number571/tendermint/proxy"
-	sm "github.com/number571/tendermint/state"
-	"github.com/number571/tendermint/store"
-	"github.com/number571/tendermint/types"
-	tmtime "github.com/number571/tendermint/types/time"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/log"
+	"github.com/tendermint/tendermint/mempool/mock"
+	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/proxy"
+	sm "github.com/tendermint/tendermint/state"
+	"github.com/tendermint/tendermint/store"
+	"github.com/tendermint/tendermint/types"
+	tmtime "github.com/tendermint/tendermint/types/time"
 )
 
 var config *cfg.Config

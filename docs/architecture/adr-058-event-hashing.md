@@ -8,7 +8,7 @@
 
 ## Context
 
-Before [PR#4845](https://github.com/number571/tendermint/pull/4845),
+Before [PR#4845](https://github.com/tendermint/tendermint/pull/4845),
 `Header#LastResultsHash` was a root of the Merkle tree built from `DeliverTx`
 results. Only `Code`, `Data` fields were included because `Info` and `Log`
 fields are non-deterministic.
@@ -19,11 +19,11 @@ information to blocks / transactions.
 
 Many applications seem to have started using them since.
 
-However, before [PR#4845](https://github.com/number571/tendermint/pull/4845)
+However, before [PR#4845](https://github.com/tendermint/tendermint/pull/4845)
 there was no way to prove that certain events were a part of the result
 (_unless the application developer includes them into the state tree_).
 
-Hence, [PR#4845](https://github.com/number571/tendermint/pull/4845) was
+Hence, [PR#4845](https://github.com/tendermint/tendermint/pull/4845) was
 opened. In it, `GasWanted` along with `GasUsed` are included when hashing
 `DeliverTx` results. Also, events from `BeginBlock`, `EndBlock` and `DeliverTx`
 results are hashed into the `LastResultsHash` as follows:

@@ -25,7 +25,7 @@ There are a few options to pick from:
 
 - `CapnProto`: Cap’n Proto is an insanely fast data interchange format and capability-based RPC system. Cap'n Proto does not have a encoding/decoding step. It has not seen wide adoption throughout the industry.
 
-- @erikgrinaker - https://github.com/number571/tendermint/pull/4623#discussion_r401163501
+- @erikgrinaker - https://github.com/tendermint/tendermint/pull/4623#discussion_r401163501
   ```
   Cap'n'Proto is awesome. It was written by one of the original Protobuf developers to fix some of its issues, and supports e.g. random access to process huge messages without loading them into memory and an (opt-in) canonical form which would be very useful when determinism is needed (e.g. in the state machine). That said, I suspect Protobuf is the better choice due to wider adoption, although it makes me kind of sad since Cap'n'Proto is technically better.
   ```

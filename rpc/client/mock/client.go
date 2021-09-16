@@ -18,13 +18,13 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/number571/tendermint/libs/bytes"
-	"github.com/number571/tendermint/libs/service"
-	"github.com/number571/tendermint/rpc/client"
-	"github.com/number571/tendermint/rpc/core"
-	ctypes "github.com/number571/tendermint/rpc/core/types"
-	rpctypes "github.com/number571/tendermint/rpc/jsonrpc/types"
-	"github.com/number571/tendermint/types"
+	"github.com/tendermint/tendermint/libs/bytes"
+	"github.com/tendermint/tendermint/libs/service"
+	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/tendermint/tendermint/rpc/core"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	rpctypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
+	"github.com/tendermint/tendermint/types"
 )
 
 // Client wraps arbitrary implementations of the various interfaces.

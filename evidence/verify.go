@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/number571/tendermint/light"
-	"github.com/number571/tendermint/types"
+	"github.com/tendermint/tendermint/light"
+	"github.com/tendermint/tendermint/types"
 )
 
 // verify verifies the evidence fully by checking:

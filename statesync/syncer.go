@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"time"
 
-	abci "github.com/number571/tendermint/abci/types"
-	"github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/libs/log"
-	tmsync "github.com/number571/tendermint/libs/sync"
-	"github.com/number571/tendermint/p2p"
-	ssproto "github.com/number571/tendermint/proto/tendermint/statesync"
-	"github.com/number571/tendermint/proxy"
-	sm "github.com/number571/tendermint/state"
-	"github.com/number571/tendermint/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/log"
+	tmsync "github.com/tendermint/tendermint/libs/sync"
+	"github.com/tendermint/tendermint/p2p"
+	ssproto "github.com/tendermint/tendermint/proto/tendermint/statesync"
+	"github.com/tendermint/tendermint/proxy"
+	sm "github.com/tendermint/tendermint/state"
+	"github.com/tendermint/tendermint/types"
 )
 
 const (

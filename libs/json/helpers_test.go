@@ -3,7 +3,7 @@ package json_test
 import (
 	"time"
 
-	"github.com/tendermint/tendermint/libs/json"
+	"github.com/number571/tendermint/libs/json"
 )
 
 // Register Car, an instance of the Vehicle interface.

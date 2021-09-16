@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tendermint/tendermint/behaviour"
-	bc "github.com/tendermint/tendermint/blockchain"
-	"github.com/tendermint/tendermint/libs/log"
-	tmsync "github.com/tendermint/tendermint/libs/sync"
-	"github.com/tendermint/tendermint/p2p"
-	bcproto "github.com/tendermint/tendermint/proto/tendermint/blockchain"
-	"github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/behaviour"
+	bc "github.com/number571/tendermint/blockchain"
+	"github.com/number571/tendermint/libs/log"
+	tmsync "github.com/number571/tendermint/libs/sync"
+	"github.com/number571/tendermint/p2p"
+	bcproto "github.com/number571/tendermint/proto/tendermint/blockchain"
+	"github.com/number571/tendermint/state"
+	"github.com/number571/tendermint/types"
 )
 
 const (

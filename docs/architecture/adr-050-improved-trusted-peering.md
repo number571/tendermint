@@ -55,4 +55,4 @@ The new feature introduces two new parameters in `config.toml` which needs expla
 
 ## References
 
-* two p2p feature enhancement proposal(https://github.com/tendermint/tendermint/issues/4053)
+* two p2p feature enhancement proposal(https://github.com/number571/tendermint/issues/4053)

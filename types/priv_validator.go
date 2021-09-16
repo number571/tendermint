@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/gost512"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/number571/tendermint/crypto"
+	"github.com/number571/tendermint/crypto/gost512"
+	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 )
 
 // PrivValidator defines the functionality of a local Tendermint validator

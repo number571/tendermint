@@ -9,18 +9,18 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
-	cstypes "github.com/tendermint/tendermint/consensus/types"
-	"github.com/tendermint/tendermint/libs/bits"
-	tmevents "github.com/tendermint/tendermint/libs/events"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmsync "github.com/tendermint/tendermint/libs/sync"
-	"github.com/tendermint/tendermint/p2p"
-	tmcons "github.com/tendermint/tendermint/proto/tendermint/consensus"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
+	cstypes "github.com/number571/tendermint/consensus/types"
+	"github.com/number571/tendermint/libs/bits"
+	tmevents "github.com/number571/tendermint/libs/events"
+	tmjson "github.com/number571/tendermint/libs/json"
+	"github.com/number571/tendermint/libs/log"
+	tmsync "github.com/number571/tendermint/libs/sync"
+	"github.com/number571/tendermint/p2p"
+	tmcons "github.com/number571/tendermint/proto/tendermint/consensus"
+	tmproto "github.com/number571/tendermint/proto/tendermint/types"
+	sm "github.com/number571/tendermint/state"
+	"github.com/number571/tendermint/types"
+	tmtime "github.com/number571/tendermint/types/time"
 )
 
 const (

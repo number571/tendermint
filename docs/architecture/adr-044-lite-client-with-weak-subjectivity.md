@@ -32,7 +32,7 @@ fork the network at some point in its prior history. See Vitalik’s post at
 Subjectivity](https://blog.ethereum.org/2014/11/25/proof-stake-learned-love-weak-subjectivity/).
 
 Currently, Tendermint provides a lite client implementation in the
-[light](https://github.com/tendermint/tendermint/tree/master/light) package. This
+[light](https://github.com/number571/tendermint/tree/master/light) package. This
 lite client implements a bisection algorithm that tries to use a binary search
 to find the minimum number of block headers where the validator set voting
 power changes are less than < 1/3rd. This interface does not support weak

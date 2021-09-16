@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tendermint/tendermint/light/provider"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/light/provider"
+	"github.com/number571/tendermint/types"
 )
 
 type Mock struct {

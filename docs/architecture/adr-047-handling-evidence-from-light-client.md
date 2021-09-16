@@ -185,7 +185,7 @@ For a detailed overview of how each of these three attacks can be conducted plea
 
 When a full node receives evidence from the light client it will need to verify
 it for itself before gossiping it to peers and trying to commit it on chain. This process is outlined
- in [ADR-059](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-059-evidence-composition-and-lifecycle.md).
+ in [ADR-059](https://github.com/number571/tendermint/blob/master/docs/architecture/adr-059-evidence-composition-and-lifecycle.md).
 
 ## Status
 
@@ -213,8 +213,8 @@ clear from the current information which nodes behaved maliciously.
 ## References
 
 * [Fork accountability spec](https://github.com/tendermint/spec/blob/master/spec/consensus/light-client/accountability.md)
-* [ADR 056: Proving amnesia attacks](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-056-proving-amnesia-attacks.md)
-* [ADR-059: Evidence Composition and Lifecycle](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-059-evidence-composition-and-lifecycle.md)
+* [ADR 056: Proving amnesia attacks](https://github.com/number571/tendermint/blob/master/docs/architecture/adr-056-proving-amnesia-attacks.md)
+* [ADR-059: Evidence Composition and Lifecycle](https://github.com/number571/tendermint/blob/master/docs/architecture/adr-059-evidence-composition-and-lifecycle.md)
 * [Informal's Light Client Detector](https://github.com/informalsystems/tendermint-rs/blob/master/docs/spec/lightclient/detection/detection.md)
 
 

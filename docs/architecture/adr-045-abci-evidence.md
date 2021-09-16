@@ -31,7 +31,7 @@ checking).
 
 Currently, evidence verification is handled by Tendermint. Once committed,
 [evidence is passed over
-ABCI](https://github.com/tendermint/tendermint/blob/master/proto/tendermint/abci/types.proto#L354)
+ABCI](https://github.com/number571/tendermint/blob/master/proto/tendermint/abci/types.proto#L354)
 in BeginBlock in a reduced form that includes only
 the type of evidence, its height and timestamp, the validator it's from, and the
 total voting power of the validator set at the height. The app trusts Tendermint
@@ -49,7 +49,7 @@ Arguments in favor of leaving evidence handling in Tendermint:
 2) Amensia attacks can not be easily detected - they require an interactive
   protocol among all the validators to submit justification for their past
   votes. Our best notion of [how to do this
-  currently](https://github.com/tendermint/tendermint/blob/c67154232ca8be8f5c21dff65d154127adc4f7bb/docs/spec/consensus/fork-detection.md)
+  currently](https://github.com/number571/tendermint/blob/c67154232ca8be8f5c21dff65d154127adc4f7bb/docs/spec/consensus/fork-detection.md)
   is via a centralized
   monitor service that is trusted for liveness to aggregate data from
   current and past validators, but which produces a proof of misbehaviour (ie.
@@ -116,7 +116,7 @@ data in the first place.
 A separate ADR will describe how Tendermint will handle these new forms of
 evidence, in terms of how it will engage the monitoring protocol described in
 the [fork
-detection](https://github.com/tendermint/tendermint/blob/c67154232ca8be8f5c21dff65d154127adc4f7bb/docs/spec/consensus/fork-detection.md) document,
+detection](https://github.com/number571/tendermint/blob/c67154232ca8be8f5c21dff65d154127adc4f7bb/docs/spec/consensus/fork-detection.md) document,
 and how it will track past validators and manage DoS issues.
 
 ## Status

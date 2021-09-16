@@ -1,12 +1,12 @@
 package types
 
 import (
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
-	cryptoenc "github.com/tendermint/tendermint/crypto/encoding"
-	"github.com/tendermint/tendermint/crypto/gost256"
-	"github.com/tendermint/tendermint/crypto/gost512"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	abci "github.com/number571/tendermint/abci/types"
+	"github.com/number571/tendermint/crypto"
+	cryptoenc "github.com/number571/tendermint/crypto/encoding"
+	"github.com/number571/tendermint/crypto/gost256"
+	"github.com/number571/tendermint/crypto/gost512"
+	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 )
 
 //-------------------------------------------------------

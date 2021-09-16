@@ -2,10 +2,11 @@ package commands
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
+
+	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"github.com/spf13/cobra"
 
@@ -147,7 +148,7 @@ func checkGenesisHash(config *cfg.Config) error {
 		return fmt.Errorf("can't open genesis file: %w", err)
 	}
 	defer f.Close()
-	h := sha256.New()
+	h := ghash.New(ghash.H256)
 	if _, err := io.Copy(h, f); err != nil {
 		return fmt.Errorf("error when hashing genesis file: %w", err)
 	}

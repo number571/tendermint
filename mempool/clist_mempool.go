@@ -3,7 +3,10 @@ package mempool
 import (
 	"bytes"
 	"container/list"
-	"crypto/sha256"
+
+	// "crypto/sha256"
+	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
+
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -22,7 +25,7 @@ import (
 )
 
 // TxKeySize is the size of the transaction key index
-const TxKeySize = sha256.Size
+const TxKeySize = ghash.Size256
 
 var newline = []byte("\n")
 
@@ -754,7 +757,9 @@ func (nopTxCache) Remove(types.Tx)    {}
 
 // TxKey is the fixed length array hash used as the key in maps.
 func TxKey(tx types.Tx) [TxKeySize]byte {
-	return sha256.Sum256(tx)
+	var res [TxKeySize]byte
+	copy(res[:], ghash.Sum(ghash.H256, tx))
+	return res
 }
 
 // txID is a hash of the Tx.

@@ -2,7 +2,9 @@
 package main
 
 import (
-	"crypto/sha256"
+	// "crypto/sha256"
+	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
+
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -144,7 +146,7 @@ func hashItems(items map[string]string) []byte {
 	}
 	sort.Strings(keys)
 
-	hasher := sha256.New()
+	hasher := ghash.New(ghash.H256)
 	for _, key := range keys {
 		_, _ = hasher.Write([]byte(key))
 		_, _ = hasher.Write([]byte{0})

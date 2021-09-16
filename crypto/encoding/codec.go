@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/gost256"
-	"github.com/tendermint/tendermint/crypto/gost512"
-	"github.com/tendermint/tendermint/libs/json"
-	pc "github.com/tendermint/tendermint/proto/tendermint/crypto"
+	"github.com/number571/tendermint/crypto"
+	"github.com/number571/tendermint/crypto/gost256"
+	"github.com/number571/tendermint/crypto/gost512"
+	"github.com/number571/tendermint/libs/json"
+	pc "github.com/number571/tendermint/proto/tendermint/crypto"
 )
 
 func init() {

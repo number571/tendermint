@@ -13,14 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 	dbm "github.com/tendermint/tm-db"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/merkle"
-	"github.com/tendermint/tendermint/libs/bytes"
-	lcmock "github.com/tendermint/tendermint/light/rpc/mocks"
-	tmcrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
-	rpcmock "github.com/tendermint/tendermint/rpc/client/mocks"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
+	abci "github.com/number571/tendermint/abci/types"
+	"github.com/number571/tendermint/crypto/merkle"
+	"github.com/number571/tendermint/libs/bytes"
+	lcmock "github.com/number571/tendermint/light/rpc/mocks"
+	tmcrypto "github.com/number571/tendermint/proto/tendermint/crypto"
+	rpcmock "github.com/number571/tendermint/rpc/client/mocks"
+	ctypes "github.com/number571/tendermint/rpc/core/types"
+	"github.com/number571/tendermint/types"
 )
 
 // TestABCIQuery tests ABCIQuery requests and verifies proofs. HAPPY PATH 😀

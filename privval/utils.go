@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/tendermint/tendermint/crypto/gost512"
-	"github.com/tendermint/tendermint/libs/log"
-	tmnet "github.com/tendermint/tendermint/libs/net"
+	"github.com/number571/tendermint/crypto/gost512"
+	"github.com/number571/tendermint/libs/log"
+	tmnet "github.com/number571/tendermint/libs/net"
 )
 
 // IsConnTimeout returns a boolean indicating whether the error is known to

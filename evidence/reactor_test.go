@@ -15,17 +15,17 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/evidence"
-	"github.com/tendermint/tendermint/evidence/mocks"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/p2p"
-	p2pmocks "github.com/tendermint/tendermint/p2p/mocks"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	cfg "github.com/number571/tendermint/config"
+	"github.com/number571/tendermint/crypto"
+	"github.com/number571/tendermint/crypto/tmhash"
+	"github.com/number571/tendermint/evidence"
+	"github.com/number571/tendermint/evidence/mocks"
+	"github.com/number571/tendermint/libs/log"
+	"github.com/number571/tendermint/p2p"
+	p2pmocks "github.com/number571/tendermint/p2p/mocks"
+	tmproto "github.com/number571/tendermint/proto/tendermint/types"
+	sm "github.com/number571/tendermint/state"
+	"github.com/number571/tendermint/types"
 )
 
 var (

@@ -1,6 +1,6 @@
 # ADR 053: State Sync Prototype
 
-State sync is now [merged](https://github.com/tendermint/tendermint/pull/4705). Up-to-date ABCI documentation is [available](https://github.com/tendermint/spec/pull/90), refer to it rather than this ADR for details.
+State sync is now [merged](https://github.com/number571/tendermint/pull/4705). Up-to-date ABCI documentation is [available](https://github.com/tendermint/spec/pull/90), refer to it rather than this ADR for details.
 
 This ADR outlines the plan for an initial state sync prototype, and is subject to change as we gain feedback and experience. It builds on discussions and findings in [ADR-042](./adr-042-state-sync.md), see that for background information.
 

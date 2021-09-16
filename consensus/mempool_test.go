@@ -12,11 +12,11 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/tendermint/tendermint/abci/example/code"
-	abci "github.com/tendermint/tendermint/abci/types"
-	mempl "github.com/tendermint/tendermint/mempool"
-	sm "github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/abci/example/code"
+	abci "github.com/number571/tendermint/abci/types"
+	mempl "github.com/number571/tendermint/mempool"
+	sm "github.com/number571/tendermint/state"
+	"github.com/number571/tendermint/types"
 )
 
 // for testing

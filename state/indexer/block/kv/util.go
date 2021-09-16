@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/google/orderedcode"
-	"github.com/tendermint/tendermint/libs/pubsub/query"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/libs/pubsub/query"
+	"github.com/number571/tendermint/types"
 )
 
 func intInSlice(a int, list []int) bool {

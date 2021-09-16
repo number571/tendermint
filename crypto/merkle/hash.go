@@ -3,7 +3,7 @@ package merkle
 import (
 	"hash"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/number571/tendermint/crypto/tmhash"
 )
 
 // TODO: make these have a large predefined capacity

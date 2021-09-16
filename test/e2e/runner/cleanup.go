@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	e2e "github.com/tendermint/tendermint/test/e2e/pkg"
+	e2e "github.com/number571/tendermint/test/e2e/pkg"
 )
 
 // Cleanup removes the Docker Compose containers and testnet directory.

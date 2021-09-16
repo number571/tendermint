@@ -4,7 +4,7 @@
 
 Current logging system in Tendermint is very static and not flexible enough.
 
-Issues: [358](https://github.com/tendermint/tendermint/issues/358), [375](https://github.com/tendermint/tendermint/issues/375).
+Issues: [358](https://github.com/number571/tendermint/issues/358), [375](https://github.com/number571/tendermint/issues/375).
 
 What we want from the new system:
 

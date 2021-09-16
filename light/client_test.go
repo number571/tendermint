@@ -11,12 +11,12 @@ import (
 
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tendermint/light"
-	"github.com/tendermint/tendermint/light/provider"
-	mockp "github.com/tendermint/tendermint/light/provider/mock"
-	dbs "github.com/tendermint/tendermint/light/store/db"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/libs/log"
+	"github.com/number571/tendermint/light"
+	"github.com/number571/tendermint/light/provider"
+	mockp "github.com/number571/tendermint/light/provider/mock"
+	dbs "github.com/number571/tendermint/light/store/db"
+	"github.com/number571/tendermint/types"
 )
 
 const (

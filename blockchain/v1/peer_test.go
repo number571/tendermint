@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/tendermint/libs/log"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/types"
+	"github.com/number571/tendermint/libs/log"
+	tmrand "github.com/number571/tendermint/libs/rand"
+	"github.com/number571/tendermint/p2p"
+	"github.com/number571/tendermint/types"
 )
 
 func TestPeerMonitor(t *testing.T) {

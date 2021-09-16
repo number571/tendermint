@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/p2p"
-	p2pmocks "github.com/tendermint/tendermint/p2p/mocks"
-	ssproto "github.com/tendermint/tendermint/proto/tendermint/statesync"
-	proxymocks "github.com/tendermint/tendermint/proxy/mocks"
+	abci "github.com/number571/tendermint/abci/types"
+	"github.com/number571/tendermint/config"
+	"github.com/number571/tendermint/p2p"
+	p2pmocks "github.com/number571/tendermint/p2p/mocks"
+	ssproto "github.com/number571/tendermint/proto/tendermint/statesync"
+	proxymocks "github.com/number571/tendermint/proxy/mocks"
 )
 
 func TestReactor_Receive_ChunkRequest(t *testing.T) {

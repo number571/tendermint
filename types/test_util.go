@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
+	tmproto "github.com/number571/tendermint/proto/tendermint/types"
+	tmversion "github.com/number571/tendermint/proto/tendermint/version"
+	"github.com/number571/tendermint/version"
 )
 
 func MakeCommit(blockID BlockID, height int64, round int32,

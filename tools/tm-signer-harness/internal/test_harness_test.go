@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
 	"github.com/number571/tendermint/libs/log"
 	"github.com/number571/tendermint/privval"
 	"github.com/number571/tendermint/types"
@@ -21,11 +20,11 @@ const (
 	keyFileContents = `{
 	"address": "D08FCA3BA74CF17CBFC15E64F9505302BB0E2748",
 	"pub_key": {
-		"type": "tendermint/PubKeyEd25519",
+		"type": "tendermint/PubKey512",
 		"value": "ZCsuTjaczEyon70nmKxwvwu+jqrbq5OH3yQjcK0SFxc="
 		},
 	"priv_key": {
-		"type": "tendermint/PrivKeyEd25519",
+		"type": "tendermint/PrivKey512",
 		"value": "8O39AkQsoe1sBQwud/Kdul8lg8K9SFsql9aZvwXQSt1kKy5ONpzMTKifvSeYrHC/C76Oqturk4ffJCNwrRIXFw=="
 	}
 }`
@@ -52,7 +51,7 @@ const (
 		},
 		"validator": {
 			"pub_key_types": [
-				"ed25519"
+				"gost512"
 			]
 		}
 	},
@@ -60,7 +59,7 @@ const (
 		{
 		"address": "D08FCA3BA74CF17CBFC15E64F9505302BB0E2748",
 		"pub_key": {
-			"type": "tendermint/PubKeyEd25519",
+			"type": "tendermint/PubKey512",
 			"value": "ZCsuTjaczEyon70nmKxwvwu+jqrbq5OH3yQjcK0SFxc="
 		},
 		"power": "10",
@@ -97,7 +96,7 @@ func TestRemoteSignerPublicKeyCheckFailed(t *testing.T) {
 	harnessTest(
 		t,
 		func(th *TestHarness) *privval.SignerServer {
-			return newMockSignerServer(t, th, ed25519.GenPrivKey(), false, false)
+			return newMockSignerServer(t, th, gost512.GenPrivKey(), false, false)
 		},
 		ErrTestPublicKeyFailed,
 	)
@@ -137,7 +136,7 @@ func newMockSignerServer(
 		privval.DialTCPFn(
 			th.addr,
 			time.Duration(defaultConnDeadline)*time.Millisecond,
-			ed25519.GenPrivKey(),
+			gost512.GenPrivKey(),
 		),
 	)
 
@@ -175,7 +174,7 @@ func makeConfig(t *testing.T, acceptDeadline, acceptRetries int) TestHarnessConf
 		AcceptDeadline:   time.Duration(acceptDeadline) * time.Millisecond,
 		ConnDeadline:     time.Duration(defaultConnDeadline) * time.Millisecond,
 		AcceptRetries:    acceptRetries,
-		SecretConnKey:    ed25519.GenPrivKey(),
+		SecretConnKey:    gost512.GenPrivKey(),
 		ExitWhenComplete: false,
 	}
 }

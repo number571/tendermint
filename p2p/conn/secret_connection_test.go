@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
-	"github.com/number571/tendermint/crypto/sr25519"
+	"github.com/number571/tendermint/crypto/gost256"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/libs/async"
 	tmos "github.com/number571/tendermint/libs/os"
 	tmrand "github.com/number571/tendermint/libs/rand"
@@ -122,7 +122,7 @@ func TestSecretConnectionReadWrite(t *testing.T) {
 	genNodeRunner := func(id string, nodeConn kvstoreConn, nodeWrites []string, nodeReads *[]string) async.Task {
 		return func(_ int) (interface{}, bool, error) {
 			// Initiate cryptographic private key and secret connection trhough nodeConn.
-			nodePrvKey := ed25519.GenPrivKey()
+			nodePrvKey := gost512.GenPrivKey()
 			nodeSecretConn, err := MakeSecretConnection(nodeConn, nodePrvKey)
 			if err != nil {
 				t.Errorf("failed to establish SecretConnection for node: %v", err)
@@ -261,8 +261,8 @@ func TestNilPubkey(t *testing.T) {
 	var fooConn, barConn = makeKVStoreConnPair()
 	defer fooConn.Close()
 	defer barConn.Close()
-	var fooPrvKey = ed25519.GenPrivKey()
-	var barPrvKey = privKeyWithNilPubKey{ed25519.GenPrivKey()}
+	var fooPrvKey = gost512.GenPrivKey()
+	var barPrvKey = privKeyWithNilPubKey{gost512.GenPrivKey()}
 
 	go MakeSecretConnection(fooConn, fooPrvKey) //nolint:errcheck // ignore for tests
 
@@ -271,12 +271,12 @@ func TestNilPubkey(t *testing.T) {
 	assert.Equal(t, "toproto: key type <nil> is not supported", err.Error())
 }
 
-func TestNonEd25519Pubkey(t *testing.T) {
+func TestNonGost512Pubkey(t *testing.T) {
 	var fooConn, barConn = makeKVStoreConnPair()
 	defer fooConn.Close()
 	defer barConn.Close()
-	var fooPrvKey = ed25519.GenPrivKey()
-	var barPrvKey = sr25519.GenPrivKey()
+	var fooPrvKey = gost512.GenPrivKey()
+	var barPrvKey = gost256.GenPrivKey()
 
 	go MakeSecretConnection(fooConn, fooPrvKey) //nolint:errcheck // ignore for tests
 
@@ -334,9 +334,9 @@ func makeKVStoreConnPair() (fooConn, barConn kvstoreConn) {
 func makeSecretConnPair(tb testing.TB) (fooSecConn, barSecConn *SecretConnection) {
 	var (
 		fooConn, barConn = makeKVStoreConnPair()
-		fooPrvKey        = ed25519.GenPrivKey()
+		fooPrvKey        = gost512.GenPrivKey()
 		fooPubKey        = fooPrvKey.PubKey()
-		barPrvKey        = ed25519.GenPrivKey()
+		barPrvKey        = gost512.GenPrivKey()
 		barPubKey        = barPrvKey.PubKey()
 	)
 

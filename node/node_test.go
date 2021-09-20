@@ -16,7 +16,7 @@ import (
 
 	"github.com/number571/tendermint/abci/example/kvstore"
 	cfg "github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/evidence"
 	"github.com/number571/tendermint/libs/log"
 	tmrand "github.com/number571/tendermint/libs/rand"
@@ -139,7 +139,7 @@ func TestNodeSetPrivValTCP(t *testing.T) {
 	defer os.RemoveAll(config.RootDir)
 	config.BaseConfig.PrivValidatorListenAddr = addr
 
-	dialer := privval.DialTCPFn(addr, 100*time.Millisecond, ed25519.GenPrivKey())
+	dialer := privval.DialTCPFn(addr, 100*time.Millisecond, gost512.GenPrivKey())
 	dialerEndpoint := privval.NewSignerDialerEndpoint(
 		log.TestingLogger(),
 		dialer,

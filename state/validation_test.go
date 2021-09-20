@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/number571/tendermint/abci/types"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/crypto/tmhash"
 	"github.com/number571/tendermint/libs/log"
 	memmock "github.com/number571/tendermint/mempool/mock"
@@ -67,7 +67,7 @@ func TestValidateBlockHeader(t *testing.T) {
 		{"LastResultsHash wrong", func(block *types.Block) { block.LastResultsHash = wrongHash }},
 
 		{"EvidenceHash wrong", func(block *types.Block) { block.EvidenceHash = wrongHash }},
-		{"Proposer wrong", func(block *types.Block) { block.ProposerAddress = ed25519.GenPrivKey().PubKey().Address() }},
+		{"Proposer wrong", func(block *types.Block) { block.ProposerAddress = gost512.GenPrivKey().PubKey().Address() }},
 		{"Proposer invalid", func(block *types.Block) { block.ProposerAddress = []byte("wrong size") }},
 	}
 

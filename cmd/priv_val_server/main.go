@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/libs/log"
 	tmnet "github.com/number571/tendermint/libs/net"
 	tmos "github.com/number571/tendermint/libs/os"
@@ -43,7 +43,7 @@ func main() {
 		dialer = privval.DialUnixFn(address)
 	case "tcp":
 		connTimeout := 3 * time.Second // TODO
-		dialer = privval.DialTCPFn(address, connTimeout, ed25519.GenPrivKey())
+		dialer = privval.DialTCPFn(address, connTimeout, gost512.GenPrivKey())
 	default:
 		logger.Error("Unknown protocol", "protocol", protocol)
 		os.Exit(1)

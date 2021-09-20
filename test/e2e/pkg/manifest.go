@@ -48,7 +48,7 @@ type Manifest struct {
 	Nodes map[string]*ManifestNode `toml:"node"`
 
 	// KeyType sets the curve that will be used by validators.
-	// Options are ed25519 & secp256k1
+	// Options are gost512 & gost256
 	KeyType string `toml:"key_type"`
 }
 

@@ -2,8 +2,9 @@ package mempool
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"testing"
+
+	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"github.com/stretchr/testify/require"
 
@@ -83,15 +84,8 @@ func TestCacheAfterUpdate(t *testing.T) {
 			require.NotEqual(t, len(tc.txsInCache), counter,
 				"cache larger than expected on testcase %d", tcIndex)
 
-			nodeVal := node.Value.([sha256.Size]byte)
-			expectedBz := sha256.Sum256([]byte{byte(tc.txsInCache[len(tc.txsInCache)-counter-1])})
-			// Reference for reading the errors:
-			// >>> sha256('\x00').hexdigest()
-			// '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
-			// >>> sha256('\x01').hexdigest()
-			// '4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a'
-			// >>> sha256('\x02').hexdigest()
-			// 'dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986'
+			nodeVal := node.Value.([ghash.Size256]byte)
+			expectedBz := ghash.Sum(ghash.H256, []byte{byte(tc.txsInCache[len(tc.txsInCache)-counter-1])})
 
 			require.Equal(t, expectedBz, nodeVal, "Equality failed on index %d, tc %d", counter, tcIndex)
 			counter++

@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	tmmath "github.com/number571/tendermint/libs/math"
 	tmrand "github.com/number571/tendermint/libs/rand"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
@@ -168,7 +168,7 @@ func BenchmarkValidatorSetCopy(b *testing.B) {
 	b.StopTimer()
 	vset := NewValidatorSet([]*Validator{})
 	for i := 0; i < 1000; i++ {
-		privKey := ed25519.GenPrivKey()
+		privKey := gost512.GenPrivKey()
 		pubKey := privKey.PubKey()
 		val := NewValidator(pubKey, 10)
 		err := vset.UpdateWithChangeSet([]*Validator{val})
@@ -310,7 +310,7 @@ func TestProposerSelection3(t *testing.T) {
 	proposerOrder := make([]*Validator, 4)
 	for i := 0; i < 4; i++ {
 		// need to give all validators to have keys
-		pk := ed25519.GenPrivKey().PubKey()
+		pk := gost512.GenPrivKey().PubKey()
 		vset.Validators[i].PubKey = pk
 		proposerOrder[i] = vset.GetProposer()
 		vset.IncrementProposerPriority(1)
@@ -367,9 +367,9 @@ func newValidator(address []byte, power int64) *Validator {
 }
 
 func randPubKey() crypto.PubKey {
-	pubKey := make(ed25519.PubKey, ed25519.PubKeySize)
+	pubKey := make(gost512.PubKey, gost512.PubKeySize)
 	copy(pubKey, tmrand.Bytes(32))
-	return ed25519.PubKey(tmrand.Bytes(32))
+	return gost512.PubKey(tmrand.Bytes(32))
 }
 
 func randValidator(totalVotingPower int64) *Validator {
@@ -667,7 +667,7 @@ func TestSafeSubClip(t *testing.T) {
 // verification.
 func TestValidatorSet_VerifyCommit_All(t *testing.T) {
 	var (
-		privKey = ed25519.GenPrivKey()
+		privKey = gost512.GenPrivKey()
 		pubKey  = privKey.PubKey()
 		v1      = NewValidator(pubKey, 1000)
 		vset    = NewValidatorSet([]*Validator{v1})

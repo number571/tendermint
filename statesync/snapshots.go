@@ -3,7 +3,6 @@ package statesync
 import (
 	"context"
 
-	// "crypto/sha256"
 	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"fmt"

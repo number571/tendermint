@@ -13,7 +13,7 @@ import (
 	abci "github.com/number571/tendermint/abci/types"
 	cfg "github.com/number571/tendermint/config"
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	tmrand "github.com/number571/tendermint/libs/rand"
 	tmstate "github.com/number571/tendermint/proto/tendermint/state"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
@@ -108,7 +108,7 @@ func TestPruneStates(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			db := dbm.NewMemDB()
 			stateStore := sm.NewStore(db)
-			pk := ed25519.GenPrivKey().PubKey()
+			pk := gost512.GenPrivKey().PubKey()
 
 			// Generate a bunch of state data. Validators change for heights ending with 3, and
 			// parameters when ending with 5.

@@ -10,7 +10,6 @@ import (
 
 	"github.com/number571/tendermint/crypto/tmhash"
 
-	"github.com/number571/tendermint/crypto/ed25519"
 	"github.com/number571/tendermint/privval"
 	"github.com/number571/tendermint/state"
 
@@ -74,7 +73,7 @@ type TestHarnessConfig struct {
 	ConnDeadline   time.Duration
 	AcceptRetries  int
 
-	SecretConnKey ed25519.PrivKey
+	SecretConnKey gost512.PrivKey
 
 	ExitWhenComplete bool // Whether or not to call os.Exit when the harness has completed.
 }
@@ -213,7 +212,6 @@ func (th *TestHarness) TestPublicKey() error {
 // proposals.
 func (th *TestHarness) TestSignProposal() error {
 	th.logger.Info("TEST: Signing of proposals")
-	// sha256 hash of "hash"
 	hash := tmhash.Sum([]byte("hash"))
 	prop := &types.Proposal{
 		Type:     tmproto.ProposalType,

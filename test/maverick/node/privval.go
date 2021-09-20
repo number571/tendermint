@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
 	tmbytes "github.com/number571/tendermint/libs/bytes"
 	tmjson "github.com/number571/tendermint/libs/json"
 	tmos "github.com/number571/tendermint/libs/os"
@@ -154,7 +153,7 @@ type FilePV struct {
 // GenFilePV generates a new validator with randomly generated private key
 // and sets the filePaths, but does not call Save().
 func GenFilePV(keyFilePath, stateFilePath string) *FilePV {
-	privKey := ed25519.GenPrivKey()
+	privKey := gost512.GenPrivKey()
 
 	return &FilePV{
 		Key: FilePVKey{

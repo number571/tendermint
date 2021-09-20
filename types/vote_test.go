@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/crypto/tmhash"
 	"github.com/number571/tendermint/libs/protoio"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
@@ -206,7 +206,7 @@ func TestVoteVerify(t *testing.T) {
 	vote := examplePrevote()
 	vote.ValidatorAddress = pubkey.Address()
 
-	err = vote.Verify("test_chain_id", ed25519.GenPrivKey().PubKey())
+	err = vote.Verify("test_chain_id", gost512.GenPrivKey().PubKey())
 	if assert.Error(t, err) {
 		assert.Equal(t, ErrVoteInvalidValidatorAddress, err)
 	}

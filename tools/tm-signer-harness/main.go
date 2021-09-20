@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/number571/tendermint/crypto/ed25519"
 	"github.com/number571/tendermint/libs/log"
 	"github.com/number571/tendermint/privval"
 	"github.com/number571/tendermint/tools/tm-signer-harness/internal"
@@ -117,7 +116,7 @@ func runTestHarness(acceptRetries int, bindAddr, tmhome string) {
 		AcceptDeadline:   time.Duration(defaultAcceptDeadline) * time.Second,
 		AcceptRetries:    acceptRetries,
 		ConnDeadline:     time.Duration(defaultConnDeadline) * time.Second,
-		SecretConnKey:    ed25519.GenPrivKey(),
+		SecretConnKey:    gost512.GenPrivKey(),
 		ExitWhenComplete: true,
 	}
 	harness, err := internal.NewTestHarness(logger, cfg)
@@ -135,7 +134,7 @@ func extractKey(tmhome, outputPath string) {
 	keyFile := filepath.Join(internal.ExpandPath(tmhome), "config", "priv_validator_key.json")
 	stateFile := filepath.Join(internal.ExpandPath(tmhome), "data", "priv_validator_state.json")
 	fpv := privval.LoadFilePV(keyFile, stateFile)
-	pkb := []byte(fpv.Key.PrivKey.(ed25519.PrivKey))
+	pkb := []byte(fpv.Key.PrivKey.(gost512.PrivKey))
 	if err := ioutil.WriteFile(internal.ExpandPath(outputPath), pkb[:32], 0600); err != nil {
 		logger.Info("Failed to write private key", "output", outputPath, "err", err)
 		os.Exit(1)

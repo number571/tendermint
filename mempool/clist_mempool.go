@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"container/list"
 
-	// "crypto/sha256"
 	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"fmt"

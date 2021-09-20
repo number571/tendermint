@@ -12,8 +12,8 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
 	cryptoenc "github.com/number571/tendermint/crypto/encoding"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/libs/protoio"
 	tmp2p "github.com/number571/tendermint/proto/tendermint/p2p"
 )
@@ -58,7 +58,7 @@ type evilConn struct {
 }
 
 func newEvilConn(shareEphKey, badEphKey, shareAuthSignature, badAuthSignature bool) *evilConn {
-	privKey := ed25519.GenPrivKey()
+	privKey := gost512.GenPrivKey()
 	locEphPub, locEphPriv := genEphKeys()
 	var rep [32]byte
 	c := &evilConn{
@@ -259,7 +259,7 @@ func TestMakeSecretConnection(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			privKey := ed25519.GenPrivKey()
+			privKey := gost512.GenPrivKey()
 			_, err := MakeSecretConnection(tc.conn, privKey)
 			if tc.errMsg != "" {
 				if assert.Error(t, err) {

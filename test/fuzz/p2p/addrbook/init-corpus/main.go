@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/number571/tendermint/crypto/ed25519"
 	"github.com/number571/tendermint/p2p"
 )
 
@@ -32,7 +31,7 @@ func initCorpus(baseDir string) {
 	}
 
 	// create corpus
-	privKey := ed25519.GenPrivKey()
+	privKey := gost512.GenPrivKey()
 	addrs := []*p2p.NetAddress{
 		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(0, 0, 0, 0), Port: 0},
 		{ID: p2p.PubKeyToID(privKey.PubKey()), IP: net.IPv4(127, 0, 0, 0), Port: 80},

@@ -13,8 +13,6 @@ import (
 	"strings"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
-	"github.com/number571/tendermint/crypto/secp256k1"
 	rpchttp "github.com/number571/tendermint/rpc/client/http"
 	mcs "github.com/number571/tendermint/test/maverick/consensus"
 )
@@ -140,7 +138,7 @@ func LoadTestnet(file string) (*Testnet, error) {
 			Name:             name,
 			Testnet:          testnet,
 			PrivvalKey:       keyGen.Generate(manifest.KeyType),
-			NodeKey:          keyGen.Generate("ed25519"),
+			NodeKey:          keyGen.Generate("gost512"),
 			IP:               ipGen.Next(),
 			ProxyPort:        proxyPortGen.Next(),
 			Mode:             ModeValidator,
@@ -468,7 +466,7 @@ func (n Node) Stateless() bool {
 	return n.Mode == ModeLight || n.Mode == ModeSeed
 }
 
-// keyGenerator generates pseudorandom Ed25519 keys based on a seed.
+// keyGenerator generates pseudorandom gost512 keys based on a seed.
 type keyGenerator struct {
 	random *rand.Rand
 }
@@ -480,17 +478,17 @@ func newKeyGenerator(seed int64) *keyGenerator {
 }
 
 func (g *keyGenerator) Generate(keyType string) crypto.PrivKey {
-	seed := make([]byte, ed25519.SeedSize)
+	seed := make([]byte, gost512.SeedSize)
 
 	_, err := io.ReadFull(g.random, seed)
 	if err != nil {
 		panic(err) // this shouldn't happen
 	}
 	switch keyType {
-	case "secp256k1":
-		return secp256k1.GenPrivKeySecp256k1(seed)
-	case "", "ed25519":
-		return ed25519.GenPrivKeyFromSecret(seed)
+	case "gost256":
+		return gost256.GenPrivKeyGost256(seed)
+	case "", "gost512":
+		return gost512.GenPrivKeyFromSecret(seed)
 	default:
 		panic("KeyType not supported") // should not make it this far
 	}

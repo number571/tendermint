@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/crypto/tmhash"
 	tmproto "github.com/number571/tendermint/proto/tendermint/types"
 	tmversion "github.com/number571/tendermint/proto/tendermint/version"
@@ -26,7 +26,7 @@ type privKeys []crypto.PrivKey
 func genPrivKeys(n int) privKeys {
 	res := make(privKeys, n)
 	for i := range res {
-		res[i] = ed25519.GenPrivKey()
+		res[i] = gost512.GenPrivKey()
 	}
 	return res
 }
@@ -35,7 +35,7 @@ func genPrivKeys(n int) privKeys {
 // func (pkz privKeys) Change(i int) privKeys {
 // 	res := make(privKeys, len(pkz))
 // 	copy(res, pkz)
-// 	res[i] = ed25519.GenPrivKey()
+// 	res[i] = gost512.GenPrivKey()
 // 	return res
 // }
 
@@ -45,16 +45,16 @@ func (pkz privKeys) Extend(n int) privKeys {
 	return append(pkz, extra...)
 }
 
-// // GenSecpPrivKeys produces an array of secp256k1 private keys to generate commits.
+// // GenSecpPrivKeys produces an array of gost256 private keys to generate commits.
 // func GenSecpPrivKeys(n int) privKeys {
 // 	res := make(privKeys, n)
 // 	for i := range res {
-// 		res[i] = secp256k1.GenPrivKey()
+// 		res[i] = gost256.GenPrivKey()
 // 	}
 // 	return res
 // }
 
-// // ExtendSecp adds n more secp256k1 keys (to remove, just take a slice).
+// // ExtendSecp adds n more gost256 keys (to remove, just take a slice).
 // func (pkz privKeys) ExtendSecp(n int) privKeys {
 // 	extra := GenSecpPrivKeys(n)
 // 	return append(pkz, extra...)

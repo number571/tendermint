@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	tmjson "github.com/number571/tendermint/libs/json"
 	tmtime "github.com/number571/tendermint/types/time"
 )
@@ -29,7 +29,7 @@ func TestGenesisBad(t *testing.T) {
 		[]byte(
 			`{"validators":[` +
 				`{"pub_key":{` +
-				`"type":"tendermint/PubKeyEd25519","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
+				`"type":"tendermint/PubKey512","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
 				`},"power":"10","name":""}` +
 				`]}`,
 		),
@@ -37,7 +37,7 @@ func TestGenesisBad(t *testing.T) {
 		[]byte(
 			`{"chain_id": "Lorem ipsum dolor sit amet, consectetuer adipiscing", "validators": [` +
 				`{"pub_key":{` +
-				`"type":"tendermint/PubKeyEd25519","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
+				`"type":"tendermint/PubKey512","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
 				`},"power":"10","name":""}` +
 				`]}`,
 		),
@@ -45,7 +45,7 @@ func TestGenesisBad(t *testing.T) {
 		[]byte(
 			`{"chain_id":"mychain", "validators":[` +
 				`{"address": "A", "pub_key":{` +
-				`"type":"tendermint/PubKeyEd25519","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
+				`"type":"tendermint/PubKey512","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="` +
 				`},"power":"10","name":""}` +
 				`]}`,
 		),
@@ -66,7 +66,7 @@ func TestGenesisGood(t *testing.T) {
 			"initial_height": "1000",
 			"consensus_params": null,
 			"validators": [{
-				"pub_key":{"type":"tendermint/PubKeyEd25519","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="},
+				"pub_key":{"type":"tendermint/PubKey512","value":"AT/+aaL1eB0477Mud9JMm8Sh8BIvOYlPGC9KkIUmFaE="},
 				"power":"10",
 				"name":""
 			}],
@@ -77,7 +77,7 @@ func TestGenesisGood(t *testing.T) {
 	_, err := GenesisDocFromJSON(genDocBytes)
 	assert.NoError(t, err, "expected no error for good genDoc json")
 
-	pubkey := ed25519.GenPrivKey().PubKey()
+	pubkey := gost512.GenPrivKey().PubKey()
 	// create a base gendoc from struct
 	baseGenDoc := &GenesisDoc{
 		ChainID:    "abc",
@@ -153,7 +153,7 @@ func TestGenesisValidatorHash(t *testing.T) {
 }
 
 func randomGenesisDoc() *GenesisDoc {
-	pubkey := ed25519.GenPrivKey().PubKey()
+	pubkey := gost512.GenPrivKey().PubKey()
 	return &GenesisDoc{
 		GenesisTime:     tmtime.Now(),
 		ChainID:         "abc",

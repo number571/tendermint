@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto/tmhash"
-	ctest "github.com/number571/tendermint/internal/libs/test"
 	tmrand "github.com/number571/tendermint/libs/rand"
+	ctest "github.com/tendermint/tendermint/libs/test"
 )
 
 type testItem []byte

@@ -15,7 +15,7 @@ import (
 
 	"github.com/number571/tendermint/abci/server"
 	"github.com/number571/tendermint/config"
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	tmflags "github.com/number571/tendermint/libs/cli/flags"
 	"github.com/number571/tendermint/libs/log"
 	tmnet "github.com/number571/tendermint/libs/net"
@@ -246,7 +246,7 @@ func startSigner(cfg *Config) error {
 	var dialFn privval.SocketDialer
 	switch protocol {
 	case "tcp":
-		dialFn = privval.DialTCPFn(address, 3*time.Second, ed25519.GenPrivKey())
+		dialFn = privval.DialTCPFn(address, 3*time.Second, gost512.GenPrivKey())
 	case "unix":
 		dialFn = privval.DialUnixFn(address)
 	default:

@@ -2,7 +2,6 @@ package mempool
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	ghash "github.com/number571/go-cryptopro/gost_r_34_11_2012"
 
 	"github.com/gogo/protobuf/proto"
 	gogotypes "github.com/gogo/protobuf/types"
@@ -661,7 +662,7 @@ func newRemoteApp(
 	return clientCreator, server
 }
 func checksumIt(data []byte) string {
-	h := sha256.New()
+	h := ghash.New(ghash.H256)
 	h.Write(data)
 	return fmt.Sprintf("%x", h.Sum(nil))
 }

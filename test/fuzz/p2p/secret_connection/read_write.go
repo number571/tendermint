@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 
-	"github.com/number571/tendermint/crypto/ed25519"
 	"github.com/number571/tendermint/libs/async"
 	sc "github.com/number571/tendermint/p2p/conn"
 )
@@ -56,9 +55,9 @@ func makeKVStoreConnPair() (fooConn, barConn kvstoreConn) {
 func makeSecretConnPair() (fooSecConn, barSecConn *sc.SecretConnection) {
 	var (
 		fooConn, barConn = makeKVStoreConnPair()
-		fooPrvKey        = ed25519.GenPrivKey()
+		fooPrvKey        = gost512.GenPrivKey()
 		fooPubKey        = fooPrvKey.PubKey()
-		barPrvKey        = ed25519.GenPrivKey()
+		barPrvKey        = gost512.GenPrivKey()
 		barPubKey        = barPrvKey.PubKey()
 	)
 

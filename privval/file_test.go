@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/number571/tendermint/crypto/ed25519"
+	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/crypto/tmhash"
 	tmjson "github.com/number571/tendermint/libs/json"
 	tmrand "github.com/number571/tendermint/libs/rand"
@@ -121,7 +121,7 @@ func TestUnmarshalValidatorKey(t *testing.T) {
 	assert, require := assert.New(t), require.New(t)
 
 	// create some fixed values
-	privKey := ed25519.GenPrivKey()
+	privKey := gost512.GenPrivKey()
 	pubKey := privKey.PubKey()
 	addr := pubKey.Address()
 	pubBytes := pubKey.Bytes()
@@ -132,11 +132,11 @@ func TestUnmarshalValidatorKey(t *testing.T) {
 	serialized := fmt.Sprintf(`{
   "address": "%s",
   "pub_key": {
-    "type": "tendermint/PubKeyEd25519",
+    "type": "tendermint/PubKey512",
     "value": "%s"
   },
   "priv_key": {
-    "type": "tendermint/PrivKeyEd25519",
+    "type": "tendermint/PrivKey512",
     "value": "%s"
   }
 }`, addr, pubB64, privB64)

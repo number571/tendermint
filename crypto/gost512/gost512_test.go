@@ -31,27 +31,29 @@ func TestSignAndValidateGost512(t *testing.T) {
 	assert.False(t, pubKey.VerifySignature(msg, sig))
 }
 
-func TestBatchSafe(t *testing.T) {
-	v := gost512.NewBatchVerifier()
+//--- FROM NEW VERSIONS
 
-	for i := 0; i <= 38; i++ {
-		priv := gost512.GenPrivKeyWithInput(TEST_SUBJECT, TEST_PASSWORD)
-		pub := priv.PubKey()
+// func TestBatchSafe(t *testing.T) {
+// 	v := gost512.NewBatchVerifier()
 
-		var msg []byte
-		if i%2 == 0 {
-			msg = []byte("easter")
-		} else {
-			msg = []byte("egg")
-		}
+// 	for i := 0; i <= 38; i++ {
+// 		priv := gost512.GenPrivKeyWithInput(TEST_SUBJECT, TEST_PASSWORD)
+// 		pub := priv.PubKey()
 
-		sig, err := priv.Sign(msg)
-		require.NoError(t, err)
+// 		var msg []byte
+// 		if i%2 == 0 {
+// 			msg = []byte("easter")
+// 		} else {
+// 			msg = []byte("egg")
+// 		}
 
-		err = v.Add(pub, msg, sig)
-		require.NoError(t, err)
-	}
+// 		sig, err := priv.Sign(msg)
+// 		require.NoError(t, err)
 
-	ok, _ := v.Verify()
-	require.True(t, ok)
-}
+// 		err = v.Add(pub, msg, sig)
+// 		require.NoError(t, err)
+// 	}
+
+// 	ok, _ := v.Verify()
+// 	require.True(t, ok)
+// }

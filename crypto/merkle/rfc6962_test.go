@@ -39,7 +39,7 @@ func TestRFC6962Hasher(t *testing.T) {
 		// echo -n '' | hashsum
 		{
 			desc: "RFC6962 Empty Tree",
-			want: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"[:tmhash.Size*2],
+			want: "3f539a213e97c802cc229d474c6aa32a825a360b2a933a949fd925208d9ce1bb"[:tmhash.Size*2],
 			got:  emptyTreeHash,
 		},
 
@@ -47,19 +47,19 @@ func TestRFC6962Hasher(t *testing.T) {
 		// echo -n 00 | xxd -r -p | hashsum
 		{
 			desc: "RFC6962 Empty Leaf",
-			want: "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"[:tmhash.Size*2],
+			want: "6f7305265dc0937440881f9493ef1260f61a9d47742d369e952d41bdb2a9edd1,"[:tmhash.Size*2],
 			got:  emptyLeafHash,
 		},
 		// echo -n 004C313233343536 | xxd -r -p | hashsum
 		{
 			desc: "RFC6962 Leaf",
-			want: "395aa064aa4c29f7010acfe3f25db9485bbd4b91897b6ad7ad547639252b4d56"[:tmhash.Size*2],
+			want: "97611aea1c98288f48bb557cd138e29ed95055cb6ef8c97f58fda75f873db6bd"[:tmhash.Size*2],
 			got:  leafHash,
 		},
 		// echo -n 014E3132334E343536 | xxd -r -p | hashsum
 		{
 			desc: "RFC6962 Node",
-			want: "aa217fe888e47007fa15edab33c2b492a722cb106c64667fc2b044444de66bbb"[:tmhash.Size*2],
+			want: "0cd455c62130721a142e9b9169680563307b7cccc9e98d23ea705724e709d70c"[:tmhash.Size*2],
 			got:  innerHash([]byte("N123"), []byte("N456")),
 		},
 	} {

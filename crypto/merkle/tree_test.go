@@ -25,19 +25,18 @@ func TestHashFromByteSlices(t *testing.T) {
 	}{
 		"nil":          {nil, "3f539a213e97c802cc229d474c6aa32a825a360b2a933a949fd925208d9ce1bb"},
 		"empty":        {[][]byte{}, "3f539a213e97c802cc229d474c6aa32a825a360b2a933a949fd925208d9ce1bb"},
-		"single":       {[][]byte{{1, 2, 3}}, "054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8"},
-		"single blank": {[][]byte{{}}, "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"},
-		"two":          {[][]byte{{1, 2, 3}, {4, 5, 6}}, "82e6cfce00453804379b53962939eaa7906b39904be0813fcadd31b100773c4b"},
+		"single":       {[][]byte{{1, 2, 3}}, "a19da7f6904a04f5a963c3a3af15e6dc12d8dd676dd5b8402341dc9d2876a2c2"},
+		"single blank": {[][]byte{{}}, "6f7305265dc0937440881f9493ef1260f61a9d47742d369e952d41bdb2a9edd1"},
+		"two":          {[][]byte{{1, 2, 3}, {4, 5, 6}}, "50dc2f71b990d8b4ee83435730a4364d9f2a26d18ffa591556f4578fae248174"},
 		"many": {
 			[][]byte{{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 10}},
-			"f326493eceab4f2d9ffbc78c59432a0a005d6ea98392045c74df5d14a113be18",
+			"3c84088a0ba8e600164620b4d6efe371a83f652ebd42f7240544b2fa98e43b24",
 		},
 	}
 	for name, tc := range testcases {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			hash := HashFromByteSlices(tc.slices)
-			// t.Logf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA %s\n", hex.EncodeToString(hash))
 			assert.Equal(t, tc.expectHash, hex.EncodeToString(hash))
 		})
 	}

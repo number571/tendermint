@@ -118,3 +118,21 @@ func (pubKey PubKey) Type() string {
 func (pubKey PubKey) Equals(other crypto.PubKey) bool {
 	return bytes.Equal(gkeys.PubKey512(pubKey).Bytes(), other.Bytes())
 }
+
+//--- FROM NEW VERSION
+
+// var _ crypto.BatchVerifier = &BatchVerifier{}
+
+// type BatchVerifier gkeys.BatchVerifierX
+
+// func NewBatchVerifier() crypto.BatchVerifier {
+// 	return &BatchVerifier{}
+// }
+
+// func (b *BatchVerifier) Add(key crypto.PubKey, msg, signature []byte) error {
+// 	return (*gkeys.BatchVerifierX)(b).Add(gkeys.PubKey512(key.(PubKey)), msg, signature)
+// }
+
+// func (b *BatchVerifier) Verify() (bool, []bool) {
+// 	return (*gkeys.BatchVerifierX)(b).Verify()
+// }

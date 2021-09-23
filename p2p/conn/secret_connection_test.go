@@ -18,11 +18,18 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/number571/tendermint/crypto"
-	"github.com/number571/tendermint/crypto/gost256"
 	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/libs/async"
 	tmos "github.com/number571/tendermint/libs/os"
 	tmrand "github.com/number571/tendermint/libs/rand"
+)
+
+const (
+	test1Subject  = "subject1"
+	test1Password = "password1"
+
+	test2Subject  = "subject2"
+	test2Password = "password2"
 )
 
 // Run go test -update from within this module
@@ -122,7 +129,7 @@ func TestSecretConnectionReadWrite(t *testing.T) {
 	genNodeRunner := func(id string, nodeConn kvstoreConn, nodeWrites []string, nodeReads *[]string) async.Task {
 		return func(_ int) (interface{}, bool, error) {
 			// Initiate cryptographic private key and secret connection trhough nodeConn.
-			nodePrvKey := gost512.GenPrivKey()
+			nodePrvKey := gost512.GenPrivKeyWithInput(test1Subject, test1Password)
 			nodeSecretConn, err := MakeSecretConnection(nodeConn, nodePrvKey)
 			if err != nil {
 				t.Errorf("failed to establish SecretConnection for node: %v", err)
@@ -261,8 +268,8 @@ func TestNilPubkey(t *testing.T) {
 	var fooConn, barConn = makeKVStoreConnPair()
 	defer fooConn.Close()
 	defer barConn.Close()
-	var fooPrvKey = gost512.GenPrivKey()
-	var barPrvKey = privKeyWithNilPubKey{gost512.GenPrivKey()}
+	var fooPrvKey = gost512.GenPrivKeyWithInput(test1Subject, test1Password)
+	var barPrvKey = privKeyWithNilPubKey{gost512.GenPrivKeyWithInput(test1Subject, test1Password)}
 
 	go MakeSecretConnection(fooConn, fooPrvKey) //nolint:errcheck // ignore for tests
 
@@ -271,19 +278,22 @@ func TestNilPubkey(t *testing.T) {
 	assert.Equal(t, "toproto: key type <nil> is not supported", err.Error())
 }
 
-func TestNonGost512Pubkey(t *testing.T) {
-	var fooConn, barConn = makeKVStoreConnPair()
-	defer fooConn.Close()
-	defer barConn.Close()
-	var fooPrvKey = gost512.GenPrivKey()
-	var barPrvKey = gost256.GenPrivKey()
+// SR25519 none!
 
-	go MakeSecretConnection(fooConn, fooPrvKey) //nolint:errcheck // ignore for tests
+// func TestNonGost512Pubkey(t *testing.T) {
+// 	var fooConn, barConn = makeKVStoreConnPair()
+// 	defer fooConn.Close()
+// 	defer barConn.Close()
 
-	_, err := MakeSecretConnection(barConn, barPrvKey)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "is not supported")
-}
+// 	var fooPrvKey = gost512.GenPrivKeyWithInput(test1Subject, test1Password)
+// 	var barPrvKey = gost256.GenPrivKeyWithInput(test2Subject, test2Password)
+
+// 	go MakeSecretConnection(fooConn, fooPrvKey) //nolint:errcheck // ignore for tests
+
+// 	_, err := MakeSecretConnection(barConn, barPrvKey)
+// 	require.Error(t, err)
+// 	assert.Contains(t, err.Error(), "is not supported")
+// }
 
 func writeLots(t *testing.T, wg *sync.WaitGroup, conn io.Writer, txt string, n int) {
 	defer wg.Done()
@@ -334,9 +344,9 @@ func makeKVStoreConnPair() (fooConn, barConn kvstoreConn) {
 func makeSecretConnPair(tb testing.TB) (fooSecConn, barSecConn *SecretConnection) {
 	var (
 		fooConn, barConn = makeKVStoreConnPair()
-		fooPrvKey        = gost512.GenPrivKey()
+		fooPrvKey        = gost512.GenPrivKeyWithInput(test1Subject, test1Password)
 		fooPubKey        = fooPrvKey.PubKey()
-		barPrvKey        = gost512.GenPrivKey()
+		barPrvKey        = gost512.GenPrivKeyWithInput(test2Subject, test2Password)
 		barPubKey        = barPrvKey.PubKey()
 	)
 

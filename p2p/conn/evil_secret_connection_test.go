@@ -9,13 +9,20 @@ import (
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/gtank/merlin"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/crypto/chacha20poly1305"
+
+	gkeys "github.com/number571/go-cryptopro/gost_r_34_10_2012_eph"
+	gcipher "github.com/number571/go-cryptopro/gost_r_34_12_2015"
 
 	"github.com/number571/tendermint/crypto"
 	cryptoenc "github.com/number571/tendermint/crypto/encoding"
 	"github.com/number571/tendermint/crypto/gost512"
 	"github.com/number571/tendermint/libs/protoio"
 	tmp2p "github.com/number571/tendermint/proto/tendermint/p2p"
+)
+
+const (
+	testSubject  = "subject"
+	testPassword = "password"
 )
 
 type buffer struct {
@@ -42,9 +49,9 @@ type evilConn struct {
 	secretConn *SecretConnection
 	buffer     *buffer
 
-	locEphPub  *[32]byte
-	locEphPriv *[32]byte
-	remEphPub  *[32]byte
+	locEphPub  gkeys.PubKey
+	locEphPriv gkeys.PrivKey
+	remEphPub  gkeys.PubKey
 	privKey    crypto.PrivKey
 
 	readStep   int
@@ -58,14 +65,14 @@ type evilConn struct {
 }
 
 func newEvilConn(shareEphKey, badEphKey, shareAuthSignature, badAuthSignature bool) *evilConn {
-	privKey := gost512.GenPrivKey()
+	privKey := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	locEphPub, locEphPriv := genEphKeys()
-	var rep [32]byte
+	// var rep [32]byte
 	c := &evilConn{
 		locEphPub:  locEphPub,
 		locEphPriv: locEphPriv,
-		remEphPub:  &rep,
-		privKey:    privKey,
+		// remEphPub:  &rep,
+		privKey: privKey,
 
 		shareEphKey:        shareEphKey,
 		badEphKey:          badEphKey,
@@ -84,8 +91,8 @@ func (c *evilConn) Read(data []byte) (n int, err error) {
 	switch c.readStep {
 	case 0:
 		if !c.badEphKey {
-			lc := *c.locEphPub
-			bz, err := protoio.MarshalDelimited(&gogotypes.BytesValue{Value: lc[:]})
+			lc := c.locEphPub
+			bz, err := protoio.MarshalDelimited(&gogotypes.BytesValue{Value: lc.Bytes()})
 			if err != nil {
 				panic(err)
 			}
@@ -155,14 +162,17 @@ func (c *evilConn) Write(data []byte) (n int, err error) {
 	case 0:
 		var (
 			bytes     gogotypes.BytesValue
-			remEphPub [32]byte
+			remEphPub gkeys.PubKey
 		)
 		err := protoio.UnmarshalDelimited(data, &bytes)
 		if err != nil {
 			panic(err)
 		}
-		copy(remEphPub[:], bytes.Value)
-		c.remEphPub = &remEphPub
+		remEphPub, err = gkeys.LoadPubKey(bytes.Value)
+		if err != nil {
+			panic(err)
+		}
+		c.remEphPub = remEphPub
 		c.writeStep = 1
 		if !c.shareAuthSignature {
 			c.writeStep = 2
@@ -186,12 +196,12 @@ func (c *evilConn) signChallenge() []byte {
 
 	transcript := merlin.NewTranscript("TENDERMINT_SECRET_CONNECTION_TRANSCRIPT_HASH")
 
-	transcript.AppendMessage(labelEphemeralLowerPublicKey, loEphPub[:])
-	transcript.AppendMessage(labelEphemeralUpperPublicKey, hiEphPub[:])
+	transcript.AppendMessage(labelEphemeralLowerPublicKey, loEphPub.Bytes())
+	transcript.AppendMessage(labelEphemeralUpperPublicKey, hiEphPub.Bytes())
 
 	// Check if the local ephemeral public key was the least, lexicographically
 	// sorted.
-	locIsLeast := bytes.Equal(c.locEphPub[:], loEphPub[:])
+	locIsLeast := bytes.Equal(c.locEphPub.Bytes(), loEphPub.Bytes())
 
 	// Compute common diffie hellman secret using X25519.
 	dhSecret, err := computeDHSecret(c.remEphPub, c.locEphPriv)
@@ -212,11 +222,11 @@ func (c *evilConn) signChallenge() []byte {
 
 	copy(challenge[:], challengeSlice[0:challengeSize])
 
-	sendAead, err := chacha20poly1305.New(sendSecret[:])
+	sendAead, err := gcipher.New(sendSecret[:])
 	if err != nil {
 		panic(errors.New("invalid send SecretConnection Key"))
 	}
-	recvAead, err := chacha20poly1305.New(recvSecret[:])
+	recvAead, err := gcipher.New(recvSecret[:])
 	if err != nil {
 		panic(errors.New("invalid receive SecretConnection Key"))
 	}
@@ -259,7 +269,7 @@ func TestMakeSecretConnection(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			privKey := gost512.GenPrivKey()
+			privKey := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 			_, err := MakeSecretConnection(tc.conn, privKey)
 			if tc.errMsg != "" {
 				if assert.Error(t, err) {

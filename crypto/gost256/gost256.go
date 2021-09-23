@@ -19,11 +19,13 @@ const (
 	PrivKeyName = "tendermint/PrivKey256"
 	PubKeyName  = "tendermint/PubKey256"
 
-	ProvType = "256"
-	KeyType  = gkeys.KeyType + " " + ProvType
-
 	PubKeySize  = gkeys.PubKeySize256
 	PrivKeySize = gkeys.PrivKeySize256
+
+	SignatureSize = gkeys.SignatureSize256
+
+	ProvType = "256"
+	KeyType  = gkeys.KeyType + " " + ProvType
 )
 
 func init() {

@@ -24,8 +24,8 @@ const (
 	PrivKeyName = "tendermint/PrivKey512"
 	PubKeyName  = "tendermint/PubKey512"
 
-	PubKeySize     = gkeys.PubKeySize512
-	PrivateKeySize = gkeys.PrivKeySize512
+	PubKeySize  = gkeys.PubKeySize512
+	PrivKeySize = gkeys.PrivKeySize512
 
 	SignatureSize = gkeys.SignatureSize512
 

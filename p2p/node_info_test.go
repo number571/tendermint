@@ -66,7 +66,7 @@ func TestNodeInfoValidate(t *testing.T) {
 		{"Good RPCAddress", func(ni *DefaultNodeInfo) { ni.Other.RPCAddress = "0.0.0.0:26657" }, false},
 	}
 
-	nodeKey := NodeKey{PrivKey: gost512.GenPrivKey()}
+	nodeKey := NodeKey{PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword)}
 	name := "testing"
 
 	// test case passes
@@ -90,8 +90,8 @@ func TestNodeInfoValidate(t *testing.T) {
 
 func TestNodeInfoCompatible(t *testing.T) {
 
-	nodeKey1 := NodeKey{PrivKey: gost512.GenPrivKey()}
-	nodeKey2 := NodeKey{PrivKey: gost512.GenPrivKey()}
+	nodeKey1 := NodeKey{PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword)}
+	nodeKey2 := NodeKey{PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword)}
 	name := "testing"
 
 	var newTestChannel byte = 0x2

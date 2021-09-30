@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"github.com/number571/tendermint/crypto/gost512"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -70,6 +71,8 @@ const (
 }`
 
 	defaultConnDeadline = 100
+	testSubject         = "testSubject"
+	testPassword        = "testPassword"
 )
 
 func TestRemoteSignerTestHarnessMaxAcceptRetriesReached(t *testing.T) {
@@ -96,7 +99,7 @@ func TestRemoteSignerPublicKeyCheckFailed(t *testing.T) {
 	harnessTest(
 		t,
 		func(th *TestHarness) *privval.SignerServer {
-			return newMockSignerServer(t, th, gost512.GenPrivKey(), false, false)
+			return newMockSignerServer(t, th, gost512.GenPrivKeyWithInput(), false, false)
 		},
 		ErrTestPublicKeyFailed,
 	)
@@ -136,7 +139,7 @@ func newMockSignerServer(
 		privval.DialTCPFn(
 			th.addr,
 			time.Duration(defaultConnDeadline)*time.Millisecond,
-			gost512.GenPrivKey(),
+			gost512.GenPrivKeyWithInput(testSubject, testPassword),
 		),
 	)
 
@@ -174,7 +177,7 @@ func makeConfig(t *testing.T, acceptDeadline, acceptRetries int) TestHarnessConf
 		AcceptDeadline:   time.Duration(acceptDeadline) * time.Millisecond,
 		ConnDeadline:     time.Duration(defaultConnDeadline) * time.Millisecond,
 		AcceptRetries:    acceptRetries,
-		SecretConnKey:    gost512.GenPrivKey(),
+		SecretConnKey:    gost512.GenPrivKeyWithInput(testSubject, testPassword),
 		ExitWhenComplete: false,
 	}
 }

@@ -38,7 +38,7 @@ func TestTransportMultiplexConnFilter(t *testing.T) {
 	mt := newMultiplexTransport(
 		emptyNodeInfo(),
 		NodeKey{
-			PrivKey: gost512.GenPrivKey(),
+			PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword),
 		},
 	)
 	id := mt.nodeKey.ID()
@@ -92,7 +92,7 @@ func TestTransportMultiplexConnFilterTimeout(t *testing.T) {
 	mt := newMultiplexTransport(
 		emptyNodeInfo(),
 		NodeKey{
-			PrivKey: gost512.GenPrivKey(),
+			PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword),
 		},
 	)
 	id := mt.nodeKey.ID()
@@ -138,7 +138,7 @@ func TestTransportMultiplexConnFilterTimeout(t *testing.T) {
 }
 
 func TestTransportMultiplexMaxIncomingConnections(t *testing.T) {
-	pv := gost512.GenPrivKey()
+	pv := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	id := PubKeyToID(pv.PubKey())
 	mt := newMultiplexTransport(
 		testNodeInfo(
@@ -242,7 +242,7 @@ func TestTransportMultiplexAcceptMultiple(t *testing.T) {
 
 func testDialer(dialAddr NetAddress, errc chan error) {
 	var (
-		pv     = gost512.GenPrivKey()
+		pv     = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		dialer = newMultiplexTransport(
 			testNodeInfo(PubKeyToID(pv.PubKey()), defaultNodeName),
 			NodeKey{
@@ -265,7 +265,7 @@ func TestTransportMultiplexAcceptNonBlocking(t *testing.T) {
 	mt := testSetupMultiplexTransport(t)
 
 	var (
-		fastNodePV   = gost512.GenPrivKey()
+		fastNodePV   = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		fastNodeInfo = testNodeInfo(PubKeyToID(fastNodePV.PubKey()), "fastnode")
 		errc         = make(chan error)
 		fastc        = make(chan struct{})
@@ -299,7 +299,7 @@ func TestTransportMultiplexAcceptNonBlocking(t *testing.T) {
 			errc <- fmt.Errorf("fast peer timed out")
 		}
 
-		sc, err := upgradeSecretConn(c, 200*time.Millisecond, gost512.GenPrivKey())
+		sc, err := upgradeSecretConn(c, 200*time.Millisecond, gost512.GenPrivKeyWithInput(testSubject, testPassword))
 		if err != nil {
 			errc <- err
 			return
@@ -307,7 +307,7 @@ func TestTransportMultiplexAcceptNonBlocking(t *testing.T) {
 
 		_, err = handshake(sc, 200*time.Millisecond,
 			testNodeInfo(
-				PubKeyToID(gost512.GenPrivKey().PubKey()),
+				PubKeyToID(gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()),
 				"slow_peer",
 			))
 		if err != nil {
@@ -361,7 +361,7 @@ func TestTransportMultiplexValidateNodeInfo(t *testing.T) {
 
 	go func() {
 		var (
-			pv     = gost512.GenPrivKey()
+			pv     = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 			dialer = newMultiplexTransport(
 				testNodeInfo(PubKeyToID(pv.PubKey()), ""), // Should not be empty
 				NodeKey{
@@ -403,10 +403,10 @@ func TestTransportMultiplexRejectMissmatchID(t *testing.T) {
 	go func() {
 		dialer := newMultiplexTransport(
 			testNodeInfo(
-				PubKeyToID(gost512.GenPrivKey().PubKey()), "dialer",
+				PubKeyToID(gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()), "dialer",
 			),
 			NodeKey{
-				PrivKey: gost512.GenPrivKey(),
+				PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword),
 			},
 		)
 		addr := NewNetAddress(mt.nodeKey.ID(), mt.listener.Addr())
@@ -438,7 +438,7 @@ func TestTransportMultiplexDialRejectWrongID(t *testing.T) {
 	mt := testSetupMultiplexTransport(t)
 
 	var (
-		pv     = gost512.GenPrivKey()
+		pv     = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		dialer = newMultiplexTransport(
 			testNodeInfo(PubKeyToID(pv.PubKey()), ""), // Should not be empty
 			NodeKey{
@@ -447,7 +447,7 @@ func TestTransportMultiplexDialRejectWrongID(t *testing.T) {
 		)
 	)
 
-	wrongID := PubKeyToID(gost512.GenPrivKey().PubKey())
+	wrongID := PubKeyToID(gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey())
 	addr := NewNetAddress(wrongID, mt.listener.Addr())
 
 	_, err := dialer.Dial(*addr, peerConfig{})
@@ -470,7 +470,7 @@ func TestTransportMultiplexRejectIncompatible(t *testing.T) {
 
 	go func() {
 		var (
-			pv     = gost512.GenPrivKey()
+			pv     = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 			dialer = newMultiplexTransport(
 				testNodeInfoWithNetwork(PubKeyToID(pv.PubKey()), "dialer", "incompatible-network"),
 				NodeKey{
@@ -570,7 +570,7 @@ func TestTransportHandshake(t *testing.T) {
 	}
 
 	var (
-		peerPV       = gost512.GenPrivKey()
+		peerPV       = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		peerNodeInfo = testNodeInfo(PubKeyToID(peerPV.PubKey()), defaultNodeName)
 	)
 
@@ -625,7 +625,7 @@ func TestTransportAddChannel(t *testing.T) {
 	mt := newMultiplexTransport(
 		emptyNodeInfo(),
 		NodeKey{
-			PrivKey: gost512.GenPrivKey(),
+			PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword),
 		},
 	)
 	testChannel := byte(0x01)
@@ -639,7 +639,7 @@ func TestTransportAddChannel(t *testing.T) {
 // create listener
 func testSetupMultiplexTransport(t *testing.T) *MultiplexTransport {
 	var (
-		pv = gost512.GenPrivKey()
+		pv = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		id = PubKeyToID(pv.PubKey())
 		mt = newMultiplexTransport(
 			testNodeInfo(

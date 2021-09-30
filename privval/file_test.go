@@ -121,7 +121,7 @@ func TestUnmarshalValidatorKey(t *testing.T) {
 	assert, require := assert.New(t), require.New(t)
 
 	// create some fixed values
-	privKey := gost512.GenPrivKey()
+	privKey := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	pubKey := privKey.PubKey()
 	addr := pubKey.Address()
 	pubBytes := pubKey.Bytes()

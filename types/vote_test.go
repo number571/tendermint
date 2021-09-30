@@ -206,7 +206,7 @@ func TestVoteVerify(t *testing.T) {
 	vote := examplePrevote()
 	vote.ValidatorAddress = pubkey.Address()
 
-	err = vote.Verify("test_chain_id", gost512.GenPrivKey().PubKey())
+	err = vote.Verify("test_chain_id", gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey())
 	if assert.Error(t, err) {
 		assert.Equal(t, ErrVoteInvalidValidatorAddress, err)
 	}

@@ -19,11 +19,16 @@ import (
 	tmconn "github.com/number571/tendermint/p2p/conn"
 )
 
+const (
+	testSubject  = "subject"
+	testPassword = "password"
+)
+
 func TestPeerBasic(t *testing.T) {
 	assert, require := assert.New(t), require.New(t)
 
 	// simulate remote peer
-	rp := &remotePeer{PrivKey: gost512.GenPrivKey(), Config: cfg}
+	rp := &remotePeer{PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword), Config: cfg}
 	rp.Start()
 	t.Cleanup(rp.Stop)
 
@@ -53,7 +58,7 @@ func TestPeerSend(t *testing.T) {
 	config := cfg
 
 	// simulate remote peer
-	rp := &remotePeer{PrivKey: gost512.GenPrivKey(), Config: config}
+	rp := &remotePeer{PrivKey: gost512.GenPrivKeyWithInput(testSubject, testPassword), Config: config}
 	rp.Start()
 	t.Cleanup(rp.Stop)
 
@@ -82,7 +87,7 @@ func createOutboundPeerAndPerformHandshake(
 		{ID: testCh, Priority: 1},
 	}
 	reactorsByCh := map[byte]Reactor{testCh: NewTestReactor(chDescs, true)}
-	pk := gost512.GenPrivKey()
+	pk := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	pc, err := testOutboundPeerConn(addr, config, false, pk)
 	if err != nil {
 		return nil, err

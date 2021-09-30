@@ -168,7 +168,7 @@ func BenchmarkValidatorSetCopy(b *testing.B) {
 	b.StopTimer()
 	vset := NewValidatorSet([]*Validator{})
 	for i := 0; i < 1000; i++ {
-		privKey := gost512.GenPrivKey()
+		privKey := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		pubKey := privKey.PubKey()
 		val := NewValidator(pubKey, 10)
 		err := vset.UpdateWithChangeSet([]*Validator{val})
@@ -310,7 +310,7 @@ func TestProposerSelection3(t *testing.T) {
 	proposerOrder := make([]*Validator, 4)
 	for i := 0; i < 4; i++ {
 		// need to give all validators to have keys
-		pk := gost512.GenPrivKey().PubKey()
+		pk := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 		vset.Validators[i].PubKey = pk
 		proposerOrder[i] = vset.GetProposer()
 		vset.IncrementProposerPriority(1)
@@ -667,7 +667,7 @@ func TestSafeSubClip(t *testing.T) {
 // verification.
 func TestValidatorSet_VerifyCommit_All(t *testing.T) {
 	var (
-		privKey = gost512.GenPrivKey()
+		privKey = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 		pubKey  = privKey.PubKey()
 		v1      = NewValidator(pubKey, 1000)
 		vset    = NewValidatorSet([]*Validator{v1})

@@ -215,8 +215,8 @@ func TestBeginBlockByzantineValidators(t *testing.T) {
 }
 
 func TestValidateValidatorUpdates(t *testing.T) {
-	pubkey1 := gost512.GenPrivKey().PubKey()
-	pubkey2 := gost512.GenPrivKey().PubKey()
+	pubkey1 := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
+	pubkey2 := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 	pk1, err := cryptoenc.PubKeyToProto(pubkey1)
 	assert.NoError(t, err)
 	pk2, err := cryptoenc.PubKeyToProto(pubkey2)
@@ -272,9 +272,9 @@ func TestValidateValidatorUpdates(t *testing.T) {
 }
 
 func TestUpdateValidators(t *testing.T) {
-	pubkey1 := gost512.GenPrivKey().PubKey()
+	pubkey1 := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 	val1 := types.NewValidator(pubkey1, 10)
-	pubkey2 := gost512.GenPrivKey().PubKey()
+	pubkey2 := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 	val2 := types.NewValidator(pubkey2, 20)
 
 	pk, err := cryptoenc.PubKeyToProto(pubkey1)
@@ -381,7 +381,7 @@ func TestEndBlockValidatorUpdates(t *testing.T) {
 	block := makeBlock(state, 1)
 	blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: block.MakePartSet(testPartSize).Header()}
 
-	pubkey := gost512.GenPrivKey().PubKey()
+	pubkey := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 	pk, err := cryptoenc.PubKeyToProto(pubkey)
 	require.NoError(t, err)
 	app.ValidatorUpdates = []abci.ValidatorUpdate{

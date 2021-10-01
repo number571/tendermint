@@ -13,6 +13,11 @@ import (
 	"github.com/number571/tendermint/version"
 )
 
+const (
+	testSubject  = "subject"
+	testPassword = "password"
+)
+
 // privKeys is a helper type for testing.
 //
 // It lets us simulate signing with many keys.  The main use case is to create
@@ -26,7 +31,7 @@ type privKeys []crypto.PrivKey
 func genPrivKeys(n int) privKeys {
 	res := make(privKeys, n)
 	for i := range res {
-		res[i] = gost512.GenPrivKey()
+		res[i] = gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	}
 	return res
 }

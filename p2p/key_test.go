@@ -44,7 +44,7 @@ func TestNodeKeySaveAs(t *testing.T) {
 
 	assert.NoFileExists(t, filePath)
 
-	privKey := gost512.GenPrivKey()
+	privKey := gost512.GenPrivKeyWithInput(testSubject, testPassword)
 	nodeKey := &NodeKey{
 		PrivKey: privKey,
 	}

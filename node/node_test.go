@@ -32,6 +32,11 @@ import (
 	tmtime "github.com/number571/tendermint/types/time"
 )
 
+const (
+	testSubject  = "subject"
+	testPassword = "password"
+)
+
 func TestNodeStartStop(t *testing.T) {
 	config := cfg.ResetTestRoot("node_node_test")
 	defer os.RemoveAll(config.RootDir)
@@ -139,7 +144,7 @@ func TestNodeSetPrivValTCP(t *testing.T) {
 	defer os.RemoveAll(config.RootDir)
 	config.BaseConfig.PrivValidatorListenAddr = addr
 
-	dialer := privval.DialTCPFn(addr, 100*time.Millisecond, gost512.GenPrivKey())
+	dialer := privval.DialTCPFn(addr, 100*time.Millisecond, gost512.GenPrivKeyWithInput(testSubject, testPassword))
 	dialerEndpoint := privval.NewSignerDialerEndpoint(
 		log.TestingLogger(),
 		dialer,

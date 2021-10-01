@@ -145,7 +145,7 @@ func makeBlock(state sm.State, height int64) *types.Block {
 func genValSet(size int) *types.ValidatorSet {
 	vals := make([]*types.Validator, size)
 	for i := 0; i < size; i++ {
-		vals[i] = types.NewValidator(gost512.GenPrivKey().PubKey(), 10)
+		vals[i] = types.NewValidator(gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey(), 10)
 	}
 	return types.NewValidatorSet(vals)
 }
@@ -212,7 +212,7 @@ func makeHeaderPartsResponsesParams(
 }
 
 func randomGenesisDoc() *types.GenesisDoc {
-	pubkey := gost512.GenPrivKey().PubKey()
+	pubkey := gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey()
 	return &types.GenesisDoc{
 		GenesisTime: tmtime.Now(),
 		ChainID:     "abc",

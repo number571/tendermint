@@ -10,11 +10,16 @@ import (
 	"github.com/number571/tendermint/crypto/gost512"
 )
 
+const (
+	testSubject  = "testSubject"
+	testPassword = "testPassword"
+)
+
 //-------------------------------------------
 // helper funcs
 
 func newPrivKey() gost512.PrivKey {
-	return gost512.GenPrivKey()
+	return gost512.GenPrivKeyWithInput(testSubject, testPassword)
 }
 
 //-------------------------------------------

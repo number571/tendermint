@@ -20,7 +20,7 @@ func getDialerTestCases(t *testing.T) []dialerTestCase {
 	return []dialerTestCase{
 		{
 			addr:   tcpAddr,
-			dialer: DialTCPFn(tcpAddr, testTimeoutReadWrite, gost512.GenPrivKey()),
+			dialer: DialTCPFn(tcpAddr, testTimeoutReadWrite, gost512.GenPrivKeyWithInput(testSubject, testPassword)),
 		},
 		{
 			addr:   unixAddr,
@@ -32,7 +32,7 @@ func getDialerTestCases(t *testing.T) []dialerTestCase {
 func TestIsConnTimeoutForFundamentalTimeouts(t *testing.T) {
 	// Generate a networking timeout
 	tcpAddr := GetFreeLocalhostAddrPort()
-	dialer := DialTCPFn(tcpAddr, time.Millisecond, gost512.GenPrivKey())
+	dialer := DialTCPFn(tcpAddr, time.Millisecond, gost512.GenPrivKeyWithInput(testSubject, testPassword))
 	_, err := dialer()
 	assert.Error(t, err)
 	assert.True(t, IsConnTimeout(err))
@@ -40,7 +40,7 @@ func TestIsConnTimeoutForFundamentalTimeouts(t *testing.T) {
 
 func TestIsConnTimeoutForWrappedConnTimeouts(t *testing.T) {
 	tcpAddr := GetFreeLocalhostAddrPort()
-	dialer := DialTCPFn(tcpAddr, time.Millisecond, gost512.GenPrivKey())
+	dialer := DialTCPFn(tcpAddr, time.Millisecond, gost512.GenPrivKeyWithInput(testSubject, testPassword))
 	_, err := dialer()
 	assert.Error(t, err)
 	err = fmt.Errorf("%v: %w", err, ErrConnectionTimeout)

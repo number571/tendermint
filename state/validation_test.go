@@ -22,6 +22,11 @@ import (
 
 const validationTestsStopHeight int64 = 10
 
+const (
+	testSubject  = "testSubject"
+	testPassword = "testPassword"
+)
+
 func TestValidateBlockHeader(t *testing.T) {
 	proxyApp := newTestApp()
 	require.NoError(t, proxyApp.Start())
@@ -67,7 +72,9 @@ func TestValidateBlockHeader(t *testing.T) {
 		{"LastResultsHash wrong", func(block *types.Block) { block.LastResultsHash = wrongHash }},
 
 		{"EvidenceHash wrong", func(block *types.Block) { block.EvidenceHash = wrongHash }},
-		{"Proposer wrong", func(block *types.Block) { block.ProposerAddress = gost512.GenPrivKey().PubKey().Address() }},
+		{"Proposer wrong", func(block *types.Block) {
+			block.ProposerAddress = gost512.GenPrivKeyWithInput(testSubject, testPassword).PubKey().Address()
+		}},
 		{"Proposer invalid", func(block *types.Block) { block.ProposerAddress = []byte("wrong size") }},
 	}
 
